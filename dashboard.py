@@ -2,10 +2,9 @@
 dashboard.py - Professional Email Triage Dashboard
 Single-click execution | 3D Cosmic Design | AI Agent Demo | Grader Breakdown
 """
-import webbrowser
+import json
 import streamlit as st
 import time
-import json
 import re
 import base64
 from datetime import datetime
@@ -454,11 +453,11 @@ URGENT (Mark as urgent if ANY of these apply):
 - System failures: server down, database issues, data loss
 - Client escalations or complaints
 - ANY email from security@company.com, it-security@company.com
-- ANY email containing: "security alert", "password", "breach", "unauthorized", "failed login"
 - Active threats: "unauthorized access detected", "data breach", "customer info exposed"
 - System failures: "server down", "database migration failed", "production server down"
 - Client escalations: "client threatening to leave", "complaint", "escalation"
 - Time-sensitive: "expires in", "immediate action required"
+- ANY email containing: "security alert", "password", "breach", "unauthorized", "failed login"
 
 SPAM (Mark as spam if ANY of these apply):
 - Fake urgency from non-company domains
@@ -475,6 +474,7 @@ NORMAL:
 - "Attempt detected" with "no action needed" - this is normal, not urgent
 - Regular updates, newsletters, meeting invites
 - Contract follow-ups (unless marked urgent)
+
 
 IMPORTANT: When in doubt about security-related content, mark as URGENT. It's better to be safe than sorry.
 
@@ -793,7 +793,7 @@ with col_center:
     
     # Mode Selection Toggle
     st.markdown("### 🎮 Select Mode")
-    col_mode1, col_mode2 = st.columns(2)
+    col_mode1, col_mode2,col_mode3 = st.columns(3)
     
     with col_mode1:
         if st.button("🚀 NORMAL MODE", use_container_width=True, type="primary" if st.session_state.page_mode == "normal" else "secondary"):
@@ -809,6 +809,11 @@ with col_center:
             st.session_state.tasks_results = {}      # Also clear normal results
             st.rerun()
     
+    with col_mode3:
+        if st.button("📝 EDIT EMAILS", use_container_width=True, type="primary" if st.session_state.page_mode == "editor" else "secondary"):
+            st.session_state.page_mode = "editor"
+            st.rerun()
+
     st.markdown("---")
     
     # ============================================
@@ -1065,9 +1070,133 @@ if st.session_state.page_mode == "comparison":
             st.rerun()
         
     st.markdown("---")
+# ============================================
+# EDITOR MODE
+# ============================================
+if st.session_state.page_mode == "editor":
+    st.markdown("## 📝 Email Templates Editor")
+    st.markdown("Edit, add, or delete emails for each task")
+    
+    TASKS = {
+        'easy_classification': '🔵 EASY TASK',
+        'medium_prioritization': '🟡 MEDIUM TASK',
+        'hard_evolving': '🔴 HARD TASK'
+    }
+    
+    selected_task = st.selectbox(
+        "Select Task to Edit",
+        options=list(TASKS.keys()),
+        format_func=lambda x: TASKS[x]
+    )
+      
+    # File path for this task
+    json_filename = f"emails_{selected_task}.json"
+        
+    # Load emails from JSON file if exists, otherwise from environment
+    if st.button("📂 Load Current Emails", use_container_width=True):
+        if os.path.exists(json_filename):
+            with open(json_filename, 'r') as f:
+                st.session_state.editor_emails = json.load(f)
+            st.success(f"Loaded {len(st.session_state.editor_emails)} emails from JSON file!")
+        else:
+            # Load from environment
+            from environment import EmailTriageEnvironment
+            env = EmailTriageEnvironment(selected_task)
+            env.reset()
+            emails = []
+            for email in env.inbox:
+                emails.append({
+                    'id': email.id,
+                    'subject': email.subject,
+                    'body': email.body,
+                    'sender': email.sender,
+                    'correct_category': email.correct_category,
+                    'urgency': email.urgency,
+                    'time_sensitive': getattr(email, 'time_sensitive', False),
+                    'is_fake_urgent': getattr(email, 'is_fake_urgent', False)
+                })
+            st.session_state.editor_emails = emails
+            st.success(f"Loaded {len(emails)} emails from environment!")
+    
+    # Display and edit emails
+    if 'editor_emails' in st.session_state and st.session_state.editor_emails:
+        emails = st.session_state.editor_emails
+        
+        st.markdown(f"### 📧 Current Emails ({len(emails)} total)")
+        
+        for idx, email in enumerate(emails):
+            with st.expander(f"Email #{email.get('id', idx+1)}: {email.get('subject', 'No subject')[:50]}"):
+                col1, col2 = st.columns([3, 1])
+                 
+                with col1:
+                    new_subject = st.text_input("Subject", email.get('subject', ''), key=f"editor_subject_{idx}")
+                    new_sender = st.text_input("From", email.get('sender', ''), key=f"editor_sender_{idx}")
+                    new_body = st.text_area("Body", email.get('body', ''), height=100, key=f"editor_body_{idx}")
+                    new_category = st.selectbox(
+                        "Category",
+                        options=["urgent", "normal", "spam"],
+                        index=["urgent", "normal", "spam"].index(email.get('correct_category', 'normal')),
+                        key=f"editor_cat_{idx}"
+                    )
+                    
+                with col2:
+                    if st.button("🗑️ Delete", key=f"editor_delete_{idx}"):
+                        st.session_state.editor_emails.pop(idx)
+                        # Reassign IDs
+                        for i, e in enumerate(st.session_state.editor_emails):
+                            e['id'] = i + 1
+                        st.rerun()
+                  
+                if st.button("💾 Save Changes", key=f"editor_save_{idx}"):
+                    email['subject'] = new_subject
+                    email['sender'] = new_sender
+                    email['body'] = new_body
+                    email['correct_category'] = new_category
+                    st.success(f"Email #{email.get('id', idx+1)} updated!")
+                    st.rerun()
+            
+        # Add new email
+        st.markdown("---")
+        st.markdown("### ➕ Add New Email")
+           
+        col_new1, col_new2 = st.columns(2)
+        
+        with col_new1:
+            new_subject = st.text_input("Subject", placeholder="Enter email subject", key="editor_new_subject")
+            new_sender = st.text_input("From", placeholder="sender@example.com", key="editor_new_sender")
+            new_body = st.text_area("Body", placeholder="Enter email body", height=100, key="editor_new_body")
+          
+        with col_new2:
+            new_category = st.selectbox("Category", ["urgent", "normal", "spam"], key="editor_new_category")
+         
+        if st.button("➕ Add Email", use_container_width=True):
+            new_id = len(emails) + 1
+            new_email = {
+                'id': new_id,
+                'subject': new_subject,
+                'body': new_body,
+                'sender': new_sender,
+                'correct_category': new_category,
+                'urgency': 1,
+                'time_sensitive': False,
+                'is_fake_urgent': False
+            }
+            st.session_state.editor_emails.append(new_email)
+            st.success(f"Added new email: {new_subject}")
+            st.rerun()
+        
+        # Save to JSON button
+        st.markdown("---")
+        if st.button("💾 SAVE ALL TO JSON (Apply to Environment)", use_container_width=True, type="primary"):
+            with open(json_filename, 'w') as f:
+                json.dump(st.session_state.editor_emails, f, indent=2)
+            st.success(f"✅ Saved {len(st.session_state.editor_emails)} emails to {json_filename}")
+            st.info("🎯 These emails will now be used when you run NORMAL MODE!")
+    else:
+        st.info("Click 'Load Current Emails' to start editing.")
 
-# Results Dashboard
-if st.session_state.tasks_results:
+# Results Dashboard - Only show in NORMAL MODE
+if st.session_state.page_mode == "normal" and st.session_state.tasks_results:
     st.markdown("### 📊 MISSION RESULTS")
     
     scores = [r['score'] for r in st.session_state.tasks_results.values()]
@@ -1156,10 +1285,11 @@ if st.session_state.tasks_results:
     
     st.markdown("---")
     
-    # AI Decision Log
-    st.markdown("### 🤖 AI DECISION LOG")
-    
-    tabs = st.tabs(["📧 EASY TASK", "⚡ MEDIUM TASK", "🌌 HARD TASK"])
+    # AI Decision Log - Only show in NORMAL MODE
+    if st.session_state.page_mode == "normal":
+        st.markdown("### 🤖 AI DECISION LOG")
+        
+        tabs = st.tabs(["📧 EASY TASK", "⚡ MEDIUM TASK", "🌌 HARD TASK"])
     
     for idx, (task_id, result) in enumerate(st.session_state.tasks_results.items()):
         with tabs[idx]:
@@ -1190,7 +1320,8 @@ if st.session_state.tasks_results:
                         </div>
                         """, unsafe_allow_html=True)
     
-    # Reset and Download Buttons
+# Reset and Download Buttons - Only show in NORMAL MODE
+if st.session_state.page_mode == "normal":
     col_r1, col_r2, col_r3 = st.columns([1, 2, 1])
     with col_r2:
         # Download button
@@ -1209,7 +1340,7 @@ if st.session_state.tasks_results:
             st.session_state.tasks_results = {}
             st.rerun()
 
-else:
+elif st.session_state.page_mode == "normal":
     col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
     with col_w2:
         st.markdown("""
