@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Expose the port for the environment server
+# Expose the port for Streamlit
 EXPOSE 7860
 
-# Command to run the environment server
-CMD ["openenv", "serve", "--host", "0.0.0.0", "--port", "7860"]
+# Run Streamlit dashboard directly
+CMD ["streamlit", "run", "dashboard.py", "--server.port=7860", "--server.address=0.0.0.0"]
