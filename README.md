@@ -1,3 +1,4 @@
+---
 title: Email Triage AI
 emoji: 📧
 colorFrom: purple
