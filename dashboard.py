@@ -50,6 +50,42 @@ st.markdown("""
         background-attachment: fixed;
         animation: bgMove 12s ease infinite;
     }
+            
+    .stApp::after {
+        content: "";
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+
+        background:
+            radial-gradient(3px 3px at 10% 20%, white, transparent),
+            radial-gradient(4px 4px at 30% 40%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 50% 60%, #00bfff, transparent),
+            radial-gradient(5px 5px at 70% 80%, #ec4899, transparent),
+            radial-gradient(3px 3px at 80% 30%, white, transparent),
+            radial-gradient(4px 4px at 20% 70%, #6a5acd, transparent),
+            radial-gradient(3px 3px at 60% 20%, #00bfff, transparent),
+            radial-gradient(5px 5px at 40% 90%, #ec4899, transparent),
+            radial-gradient(3px 3px at 25% 50%, #8b5cf6, transparent),
+            radial-gradient(4px 4px at 65% 75%, #00bfff, transparent),
+            radial-gradient(3px 3px at 15% 85%, white, transparent),
+            radial-gradient(4px 4px at 85% 15%, #6a5acd, transparent),
+            radial-gradient(3px 3px at 55% 35%, #ec4899, transparent),
+            radial-gradient(5px 5px at 75% 55%, #00bfff, transparent),
+            radial-gradient(3px 3px at 35% 10%, #8b5cf6, transparent);
+            
+
+        animation: starsMove 12s linear infinite; /* faster */
+        pointer-events: none;
+        opacity: 0.5; /* slightly stronger */
+    }
+
+    @keyframes starsMove {
+        from { transform: translateY(0px); }
+        to { transform: translateY(-400px); }
+    }
     
     /* Glassmorphism Card */
     .glass-card {
@@ -57,7 +93,8 @@ st.markdown("""
         backdrop-filter: blur(12px);
 
         border-radius: 20px;
-        border: 1px solid rgba(30,144,255,0.4);
+        border: 1px solid rgba(138,43,226,0.3);
+        position: relative;
 
         padding: 24px;
         margin: 16px 0;
@@ -67,6 +104,16 @@ st.markdown("""
             0 0 40px rgba(138,43,226,0.2);
 
         transition: all 0.3s ease;
+    }
+            
+    .glass-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(138,43,226,0.4);
+        opacity: 0.6;
+        pointer-events: none;
     }
             
     .glass-card:hover {
@@ -111,6 +158,16 @@ st.markdown("""
         0% { background-position: 20% 20%, 80% 30%, 50% 80%; }
         50% { background-position: 25% 25%, 75% 35%, 55% 75%; }
         100% { background-position: 20% 20%, 80% 30%, 50% 80%; }
+    }
+    
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 10px rgba(138,43,226,0.4); }
+        50% { box-shadow: 0 0 30px rgba(138,43,226,0.8); }
+        100% { box-shadow: 0 0 10px rgba(138,43,226,0.4); }
+    }
+
+    .live-card {
+        animation: pulseGlow 2s infinite;
     }
             
     .title-bar {
@@ -342,8 +399,16 @@ st.markdown("""
     
     /* Progress bar styling */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        background: linear-gradient(270deg, #8b5cf6, #ec4899, #8b5cf6);
+        background-size: 300% 300%;
+        animation: progressMove 3s linear infinite;
     }
+            
+    @keyframes progressMove {
+        0% { background-position: 0% }
+        100% { background-position: 100% }
+    }
+            
     .stButton > button {
         background: linear-gradient(135deg, #1e90ff, #6a5acd);
         color: white;
@@ -364,6 +429,10 @@ st.markdown("""
         color: #c4b5fd;
         text-shadow: 0 0 10px rgba(138,43,226,0.6);
     }        
+    
+    section.main > div {
+        padding-top: 2rem;
+    }
     
     /* Responsive */
     @media (max-width: 768px) {
