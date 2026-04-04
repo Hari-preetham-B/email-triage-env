@@ -1,0 +1,40 @@
+# openenv.yaml - Metadata about your environment
+# Think of this as your environment's resume
+
+name: "email-triage-env"
+version: "1.0.0"
+description: |
+  An email triage environment for AI agents.
+  The agent must classify and prioritize emails correctly.
+  Tasks range from simple classification to managing an evolving inbox with 40+ emails.
+
+author: "Your Name"
+license: "MIT"
+
+# Tell OpenEnv where to find your models
+models:
+  observation: "models.EmailObservation"
+  action: "models.EmailAction"
+  reward: "models.EmailReward"
+
+# Which tasks are available
+tasks:
+  - id: "easy_classification"
+    name: "Easy: Classify 10 Emails"
+    description: "Ten emails with clear urgency signals"
+    difficulty: "easy"
+    
+  - id: "medium_prioritization"
+    name: "Medium: Prioritize 15 Emails"
+    description: "Fifteen emails with subtle differences in urgency"
+    difficulty: "medium"
+    
+  - id: "hard_evolving"
+    name: "Hard: Evolving Inbox (40 Emails)"
+    description: "40 emails total - 30 initial + 10 arriving dynamically. Tests fake urgency detection and memory."
+    difficulty: "hard"
+
+# Environment settings
+settings:
+  max_steps: 80
+  default_temperature: 0.7
