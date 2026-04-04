@@ -11,6 +11,17 @@ from typing import Optional, Tuple, List, Dict
 from models import (
     Email, EmailAction, EmailObservation, EmailReward, ActionType, EmailView, SenderProfile
 )
+import json
+import os
+
+def load_emails_from_json(task_id):
+    """Load emails from JSON file if it exists"""
+    filename = f"emails_{task_id}.json"
+    if os.path.exists(filename):
+        with open(filename, 'r') as f:
+            emails_data = json.load(f)
+        return emails_data
+    return None
 
 
 class EmailTriageEnvironment:
@@ -139,8 +150,39 @@ class EmailTriageEnvironment:
     def _setup_task(self):
         """
         Create emails for the selected task.
-        Each task has different difficulty levels.
+        First tries to load from JSON file, otherwise uses hardcoded emails.
         """
+        import json
+        import os
+        
+        # Try to load from JSON file first
+        filename = f"emails_{self.task_id}.json"
+        
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r') as f:
+                    emails_data = json.load(f)
+                
+                self.inbox = []
+                for email_data in emails_data:
+                    self.inbox.append(Email(
+                        id=email_data['id'],
+                        subject=email_data['subject'],
+                        body=email_data['body'],
+                        sender=email_data['sender'],
+                        correct_category=email_data['correct_category'],
+                        urgency=email_data.get('urgency', 1),
+                        time_sensitive=email_data.get('time_sensitive', False),
+                        expires_in=email_data.get('expires_in', 999),
+                        is_fake_urgent=email_data.get('is_fake_urgent', False),
+                        fake_reason=email_data.get('fake_reason', '')
+                    ))
+                print(f"Loaded {len(self.inbox)} emails from {filename}")  # Debug
+                return
+            except Exception as e:
+                print(f"Error loading JSON: {e}")
+        
+        # Fall back to hardcoded emails
         if self.task_id == "easy_classification":
             self._setup_easy_task()
         elif self.task_id == "medium_prioritization":
@@ -148,7 +190,6 @@ class EmailTriageEnvironment:
         elif self.task_id == "hard_evolving":
             self._setup_hard_task()
         else:
-            # Default to easy task if unknown
             self._setup_easy_task()
     
     def _setup_easy_task(self):
@@ -550,7 +591,7 @@ class EmailTriageEnvironment:
             self._setup_medium_task()
         elif self.task_id == "hard_evolving":
             self._setup_hard_task()
-        
+        self._setup_task()
         # Return the first email observation
         return self._get_current_observation()
     
