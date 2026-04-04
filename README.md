@@ -19,6 +19,23 @@ This environment simulates a real-world email inbox where an AI agent must class
 
 **Why Email Triage?** Email management is a genuine daily task for millions of professionals. Training AI agents to handle email triage can reduce cognitive load, automate repetitive classification, and ensure urgent communications are never missed.
 
+## 🚀 Live Demo
+
+This Space is deployed at:
+**[https://huggingface.co/spaces/Haripreetham/email-triage-env](https://huggingface.co/spaces/Haripreetham/email-triage-env)**
+
+## 🔧 Environment Variables (Required for Testing)
+
+This Space requires the following secrets to be configured in Settings → Repository secrets:
+
+| Secret Name | Value Example | Description |
+|-------------|---------------|-------------|
+| `OPENAI_API_KEY` | `gsk_xxx...` | Groq or OpenAI API key |
+| `API_BASE_URL` | `https://api.groq.com/openai/v1` | API endpoint URL |
+| `MODEL_NAME` | `llama-3.3-70b-versatile` | Model identifier |
+
+**Note for evaluators:** Please add your own API keys as secrets before testing the Space.
+
 ## ✨ Features
 
 ### 🤖 Intelligent AI Agent
@@ -38,6 +55,7 @@ This environment simulates a real-world email inbox where an AI agent must class
 ### 🎯 Smart Scoring System
 
 **Easy & Medium Tasks (Simple Accuracy)**
+
 | Action | Reward |
 |--------|--------|
 | Correct urgent | +0.5 |
@@ -46,6 +64,7 @@ This environment simulates a real-world email inbox where an AI agent must class
 | Missed urgent | -0.8 |
 
 **Hard Task (Weighted Scoring)**
+
 | Component | Weight | What it measures |
 |-----------|--------|------------------|
 | Accuracy | 50% | Correct classification |
@@ -53,9 +72,45 @@ This environment simulates a real-world email inbox where an AI agent must class
 | Priority | 15% | Processing urgent emails first |
 | Efficiency | 15% | Minimizing extra actions |
 
+### 🎮 Visual Dashboard
+
+The environment includes a professional Streamlit dashboard with:
+
+- **Live email processing view** - Watch AI decisions in real-time
+- **Confidence scores** - See how sure the AI is (0-100%)
+- **AI reasoning** - Understand WHY the AI made each decision
+- **Memory display** - Shows past interactions with each sender
+- **Progress timeline** - Track processing history
+- **Success sound** - Audio feedback on completion
+- **JSON download** - Export results for analysis
+
+### 🎲 AI vs Random Comparison
+
+Prove your AI works with side-by-side comparison:
+- **AI Agent** vs **Random Baseline**
+- Live processing on both sides
+- Bar graph comparison
+- Shows AI is significantly better than random guessing
+
+### 🧠 Multi-User Memory
+
+The AI remembers past interactions with each sender:
+
+| Sender | Personality | Trust Level |
+|--------|-------------|-------------|
+| security@company.com | crisis-mode | 10/10 |
+| client@bigcompany.com | formal | 7/10 |
+| scam@fraud.com | spammy | 1/10 |
+
+Example memory display:
+🧠 Memory: Previously 'Project Deadline Update' → NORMAL;
+Previously 'Client Meeting Request' → URGENT;
+
+text
+
 ## 📊 Baseline Performance
 
-Using GPT-3.5 via Groq:
+Using GPT-3.5 / Groq (with proper API keys):
 
 | Task | Score | Accuracy |
 |------|-------|----------|
@@ -64,40 +119,98 @@ Using GPT-3.5 via Groq:
 | Hard (40 emails) | 0.856 | 86% |
 | **Average** | **0.914** | **91.4%** |
 
-**AI is 174% better than random guessing (0.333 baseline)!**
+**AI is approximately 174% better than random guessing (0.333 baseline)!**
 
-## 🚀 Usage
+## 🛠️ Local Installation
 
-Click **"LAUNCH FULL DEMO"** to see the AI agent process all emails in real-time.
+### Prerequisites
+- Python 3.10+
+- Groq API key (free) or OpenAI API key
 
-Switch to **"AI vs RANDOM MODE"** to compare AI performance against random baseline.
+### Setup
 
-## 🔧 Environment Variables
+```bash
+# Clone the repository
+git clone https://huggingface.co/spaces/Haripreetham/email-triage-env
+cd email-triage-env
 
-The following secrets are configured in this Space:
+# Install dependencies
+pip install -r requirements.txt
 
-| Secret | Description |
-|--------|-------------|
-| `OPENAI_API_KEY` | Groq API key for LLM access |
-| `API_BASE_URL` | Groq API endpoint |
-| `MODEL_NAME` | Model identifier (llama-3.3-70b-versatile) |
+# Set up API key
+echo "OPENAI_API_KEY=your_groq_key_here" > .env
+echo "API_BASE_URL=https://api.groq.com/openai/v1" >> .env
+echo "MODEL_NAME=llama-3.3-70b-versatile" >> .env
+Run Locally
+bash
+# Run the dashboard
+streamlit run dashboard.py
 
-## 🏆 Hackathon Compliance
+# Run baseline inference
+python inference.py
 
-| Requirement | Status |
-|-------------|--------|
-| Real-world task simulation | ✅ Email triage |
-| OpenEnv spec compliance | ✅ reset(), step(), state(), typed models |
-| 3+ tasks with graders | ✅ Easy (10), Medium (15), Hard (40) |
-| Meaningful reward function | ✅ Partial rewards (+0.5 to -0.8) |
-| Baseline inference script | ✅ Works with Groq/OpenAI |
-| Deploy to HF Spaces | ✅ Live demo |
-| Dockerfile | ✅ Working container |
+# Run OpenEnv validation
+openenv validate
+📁 Project Structure
+text
+email-triage-env/
+├── dashboard.py           # Main Streamlit dashboard
+├── environment.py         # Core environment logic
+├── models.py             # Pydantic data models
+├── tasks.py              # Task graders (Easy/Medium/Hard)
+├── inference.py          # Baseline inference script
+├── random_agent.py       # Random baseline for comparison
+├── openenv.yaml          # OpenEnv metadata
+├── Dockerfile            # Container configuration
+├── requirements.txt      # Python dependencies
+├── server.py             # OpenEnv HTTP server
+├── README.md             # Documentation
+└── .env                  # API keys (not committed)
+🎮 Action Space
+Action	Description
+urgent	Mark as high priority (critical issues, deadlines)
+normal	Mark as regular priority (standard work emails)
+spam	Mark as junk (promotions, scams, newsletters)
+delete	Permanently remove email
+archive	Save for later reference
+skip	Temporarily defer to next email
+👁️ Observation Space
+Each step provides the AI with:
 
-## 📄 License
+Current email (subject, body, sender)
 
+Remaining emails count
+
+Current step number
+
+Last action result (success/error message)
+
+Note: The correct answer is hidden from the AI - it must actually read and understand the email!
+
+🏆 Hackathon Compliance
+Requirement	Status
+Real-world task simulation	✅ Email triage
+OpenEnv spec compliance	✅ reset(), step(), state(), typed models
+3+ tasks with graders	✅ Easy (10), Medium (15), Hard (40)
+Meaningful reward function	✅ Partial rewards (+0.5 to -0.8)
+Baseline inference script	✅ Works with Groq/OpenAI
+Deploy to HF Spaces	✅ Live demo
+Dockerfile	✅ Working container
+Documentation	✅ Complete README
+🤝 Acknowledgments
+Built with OpenEnv
+
+Powered by Groq (free tier) and OpenAI
+
+Inspired by real-world email security challenges
+
+📄 License
 MIT
 
----
+👨‍💻 Author
+Haripreetham
 
-**🚀 Built for the Meta AI Hackathon | Transparent Grading | Explainable AI | Memory-Enhanced Learning**
+📞 Support
+For issues or questions, please open an issue on the GitHub repository or contact the author.
+
+🚀 Built for the Meta AI Hackathon | Transparent Grading | Explainable AI | Memory-Enhanced Learning
