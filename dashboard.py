@@ -42,41 +42,118 @@ st.markdown("""
     
     /* Main Container */
     .stApp {
-        background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3e 50%, #0d0d2b 100%);
+        background: radial-gradient(circle at 20% 20%, rgba(138,43,226,0.25), transparent 40%),
+                    radial-gradient(circle at 80% 30%, rgba(0,191,255,0.2), transparent 40%),
+                    radial-gradient(circle at 50% 80%, rgba(255,0,150,0.15), transparent 40%),
+                    #050518;
+        
         background-attachment: fixed;
+        animation: bgMove 12s ease infinite;
     }
     
     /* Glassmorphism Card */
     .glass-card {
-        background: rgba(15, 15, 40, 0.6);
+        background: linear-gradient(135deg, rgba(30,144,255,0.15), rgba(138,43,226,0.1));
         backdrop-filter: blur(12px);
-        border-radius: 24px;
-        border: 1px solid rgba(139, 92, 246, 0.3);
+
+        border-radius: 20px;
+        border: 1px solid rgba(30,144,255,0.4);
+
         padding: 24px;
         margin: 16px 0;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+        box-shadow: 
+            0 0 20px rgba(30,144,255,0.3),
+            0 0 40px rgba(138,43,226,0.2);
+
         transition: all 0.3s ease;
     }
+            
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 0 30px rgba(30,144,255,0.6),
+            0 0 60px rgba(138,43,226,0.4);
+    }
+    
     
     /* Cosmic Title */
     .cosmic-title {
         font-family: 'Orbitron', monospace;
         font-size: 3rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4);
+        background: linear-gradient(135deg, #ffffff, #ff6b9d, #ffd93d);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        color: #ffffff;  /* Fallback color */
         text-align: center;
         margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(255,255,255,0.6),
+             0 0 20px rgba(30,144,255,0.8),
+             0 0 40px rgba(138,43,226,0.6);
     }
     
     .cosmic-subtitle {
         text-align: center;
-        color: #a78bfa;
+        color: #ffd93d;
         font-family: 'Space Grotesk', monospace;
         font-size: 0.9rem;
         letter-spacing: 2px;
+        font-weight: bold;
+    }
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes bgMove {
+        0% { background-position: 20% 20%, 80% 30%, 50% 80%; }
+        50% { background-position: 25% 25%, 75% 35%, 55% 75%; }
+        100% { background-position: 20% 20%, 80% 30%, 50% 80%; }
+    }
+            
+    .title-bar {
+        background: linear-gradient(270deg, #0a3d62, #1e90ff, #6a5acd, #1e90ff);
+        background-size: 600% 600%;
+        animation: gradientFlow 8s ease infinite;
+
+        padding: 30px 10px;
+        margin: 0;
+        width: 100%;
+        border-radius: 0;
+
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+
+        box-shadow: 0 0 25px rgba(30, 144, 255, 0.6);
+    }
+    .title-bar::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+
+        background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+        animation: glowRotate 6s linear infinite;
+    }
+    @keyframes glowRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .title-bar {
+        text-align: center;
+    }
+
+    .cosmic-title {
+        margin: 0;
+    }
+
+    .cosmic-subtitle {
+        margin-top: 5px;
     }
     
     /* Stats Card */
@@ -92,7 +169,16 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
     }
-    
+        /* Welcome Card Styles */
+    .welcome-card {
+        background: linear-gradient(135deg, rgba(30,144,255,0.08), rgba(138,43,226,0.05));
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 1px solid rgba(30,144,255,0.3);
+        box-shadow: 0 0 30px rgba(30,144,255,0.1);
+    }
     .stat-number {
         font-family: 'Orbitron', monospace;
         font-size: 2.2rem;
@@ -258,6 +344,26 @@ st.markdown("""
     .stProgress > div > div {
         background: linear-gradient(90deg, #8b5cf6, #ec4899);
     }
+    .stButton > button {
+        background: linear-gradient(135deg, #1e90ff, #6a5acd);
+        color: white;
+        border-radius: 12px;
+        border: none;
+        font-weight: bold;
+
+        box-shadow: 0 0 15px rgba(30,144,255,0.5);
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(30,144,255,0.8);
+    }
+    
+    h3, h2 {
+        color: #c4b5fd;
+        text-shadow: 0 0 10px rgba(138,43,226,0.6);
+    }        
     
     /* Responsive */
     @media (max-width: 768px) {
@@ -776,8 +882,14 @@ def run_all_tasks():
 # MAIN UI
 # ============================================
 
-st.markdown('<div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>', unsafe_allow_html=True)
-st.markdown('<div class="cosmic-subtitle">🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="title-bar">
+    <div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>
+    <div class="cosmic-subtitle">
+        🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌
+    </div>
+</div>
+""", unsafe_allow_html=True)
 st.markdown("---")
 
 col_left, col_center, col_right = st.columns([1, 2, 1])
@@ -815,7 +927,7 @@ with col_center:
             st.rerun()
 
     st.markdown("---")
-    
+
     # ============================================
     # NORMAL MODE
     # ============================================
@@ -1360,7 +1472,68 @@ elif st.session_state.page_mode == "normal":
         </div>
         """, unsafe_allow_html=True)
 
+# ============================================
+# FOOTER WITH DESCRIPTION
+# ============================================
+
 st.markdown("---")
+
+# Welcome Description at the BOTTOM (only shows in normal mode with no results)
+if not st.session_state.tasks_results and not st.session_state.is_running and st.session_state.page_mode == "normal":
+    st.markdown("### 📧 Welcome to Email Triage AI")
+    st.markdown("*An intelligent email assistant that learns to prioritize your inbox*")
+    
+    col_w1, col_w2, col_w3 = st.columns(3)
+    
+    with col_w1:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">🎯</div>
+            <div style="font-weight: bold; color: #a78bfa;">3 Difficulty Levels</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">Easy → Medium → Hard</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_w2:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">🧠</div>
+            <div style="font-weight: bold; color: #a78bfa;">Memory & Reasoning</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">AI remembers past interactions</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_w3:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">📊</div>
+            <div style="font-weight: bold; color: #a78bfa;">AI vs Random</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">See how AI outperforms random</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with st.expander("📋 How to Use"):
+        st.markdown("""
+        1. Select a **Mode** above: Normal, AI vs Random, or Edit Emails
+        2. Click **LAUNCH FULL DEMO** to start AI processing
+        3. Watch AI make decisions in real-time with confidence scores
+        4. View results, grader breakdown, and download JSON reports
+        5. Switch to **Edit Mode** to create your own email templates
+        """)
+    
+    st.markdown("""
+    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0;">
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">✨ Explainable AI</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🎯 Confidence Scores</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🧠 Sender Memory</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🎲 Random Baseline</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">📝 Email Editor</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+
+# Original footer
 st.markdown("""
 <div style="text-align: center; color: #4a4a7a; font-size: 0.8rem; padding: 20px;">
     🚀 Built with OpenEnv • Powered by GPT-3.5 • Transparent Grading
