@@ -48,7 +48,8 @@ st.markdown("""
                     #050518;
         
         background-attachment: fixed;
-        animation: bgMove 12s ease infinite;
+        
+        animation: bgMove 18s ease infinite;
     }
             
     .stApp::after {
@@ -81,6 +82,7 @@ st.markdown("""
         pointer-events: none;
         opacity: 0.5; /* slightly stronger */
     }
+            
 
     @keyframes starsMove {
         from { transform: translateY(0px); }
@@ -103,7 +105,7 @@ st.markdown("""
             0 0 20px rgba(30,144,255,0.3),
             0 0 40px rgba(138,43,226,0.2);
 
-        transition: all 0.3s ease;
+        transition: all 0.35s ease;
     }
             
     .glass-card::after {
@@ -117,7 +119,7 @@ st.markdown("""
     }
             
     .glass-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px) scale(1.02);
         box-shadow: 
             0 0 30px rgba(30,144,255,0.6),
             0 0 60px rgba(138,43,226,0.4);
@@ -138,16 +140,27 @@ st.markdown("""
         text-shadow: 0 0 10px rgba(255,255,255,0.6),
              0 0 20px rgba(30,144,255,0.8),
              0 0 40px rgba(138,43,226,0.6);
+        animation: textBreath 6s ease-in-out infinite;
     }
-    
+    @keyframes textBreath {
+        0%,100% { opacity: 0.9; }
+        50% { opacity: 1; }
+    }
     .cosmic-subtitle {
         text-align: center;
         color: #ffd93d;
         font-family: 'Space Grotesk', monospace;
         font-size: 0.9rem;
-        letter-spacing: 2px;
+        letter-spacing: 2.5px;
+        opacity: 0.9;
         font-weight: bold;
     }
+            
+    .breakdown-label,
+    .live-message {
+        opacity: 0.85;
+    }
+
     @keyframes gradientFlow {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -159,7 +172,11 @@ st.markdown("""
         50% { background-position: 25% 25%, 75% 35%, 55% 75%; }
         100% { background-position: 20% 20%, 80% 30%, 50% 80%; }
     }
-    
+    @keyframes softGlow {
+        0% { box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+        50% { box-shadow: 0 0 35px rgba(138,43,226,0.6); }
+        100% { box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+    }
     @keyframes pulseGlow {
         0% { box-shadow: 0 0 10px rgba(138,43,226,0.4); }
         50% { box-shadow: 0 0 30px rgba(138,43,226,0.8); }
@@ -226,6 +243,12 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
     }
+            
+    .stat-card:hover {
+        transform: scale(1.06);
+        box-shadow: 0 0 30px rgba(139,92,246,0.7);
+    }
+
         /* Welcome Card Styles */
     .welcome-card {
         background: linear-gradient(135deg, rgba(30,144,255,0.08), rgba(138,43,226,0.05));
@@ -238,12 +261,15 @@ st.markdown("""
     }
     .stat-number {
         font-family: 'Orbitron', monospace;
-        font-size: 2.2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         color: #a78bfa;
         line-height: 1.2;
+        transition: all 0.3s ease;
     }
-    
+    .stat-number:hover {
+        text-shadow: 0 0 25px rgba(138,43,226,0.9);
+    }
     .stat-label {
         font-family: 'Space Grotesk', monospace;
         font-size: 0.8rem;
@@ -313,7 +339,7 @@ st.markdown("""
         margin: 20px 0;
         border: 2px solid #8b5cf6;
         box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
-        animation: glowPulse 2s infinite;
+        animation: glowPulse 2.5s ease-in-out infinite;
     }
     @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -428,12 +454,29 @@ st.markdown("""
     h3, h2 {
         color: #c4b5fd;
         text-shadow: 0 0 10px rgba(138,43,226,0.6);
+        font-weight: 600;
+        letter-spacing: 0.5px;
     }        
     
     section.main > div {
         padding-top: 2rem;
     }
-    
+    /* Better spacing */
+    .glass-card,
+    .stat-card,
+    .breakdown-card {
+        margin-top: 18px;
+    }
+    .glass-card,
+    .stat-card,
+    button {
+        transition: all 0.25s ease-in-out;
+    }
+    /* Subtle hover glow */
+    .breakdown-card:hover,
+    .ai-log-entry:hover {
+        box-shadow: 0 0 20px rgba(138,43,226,0.4);
+    }
     /* Responsive */
     @media (max-width: 768px) {
         .stat-number {
@@ -442,6 +485,11 @@ st.markdown("""
         .cosmic-title {
             font-size: 2rem;
         }
+    }
+    /* Fade animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -927,7 +975,7 @@ def run_all_tasks():
         st.session_state.tasks_results[task_id] = result
         
         with results_placeholder.container():
-            st.markdown("---")
+            st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
             cols = st.columns(len(st.session_state.tasks_results))
             for idx, (tid, res) in enumerate(st.session_state.tasks_results.items()):
                 with cols[idx]:
@@ -952,14 +1000,16 @@ def run_all_tasks():
 # ============================================
 
 st.markdown("""
-<div class="title-bar">
-    <div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>
-    <div class="cosmic-subtitle">
-        🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌
+<div style="animation: fadeIn 0.8s ease-in;">
+    <div class="title-bar">
+        <div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>
+        <div class="cosmic-subtitle">
+            🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
-st.markdown("---")
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
 col_left, col_center, col_right = st.columns([1, 2, 1])
 
@@ -981,6 +1031,8 @@ with col_center:
             st.session_state.page_mode = "normal"
             st.session_state.tasks_results = {}  # Clear results when switching
             st.session_state.comparison_results = {} # Also clear comparison results
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
             st.rerun()
     
     with col_mode2:
@@ -988,14 +1040,18 @@ with col_center:
             st.session_state.page_mode = "comparison"
             st.session_state.comparison_results = {}  # Clear comparison results
             st.session_state.tasks_results = {}      # Also clear normal results
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
             st.rerun()
     
     with col_mode3:
         if st.button("📝 EDIT EMAILS", use_container_width=True, type="primary" if st.session_state.page_mode == "editor" else "secondary"):
             st.session_state.page_mode = "editor"
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
             st.rerun()
 
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
     # ============================================
     # NORMAL MODE
@@ -1003,6 +1059,8 @@ with col_center:
     if st.session_state.page_mode == "normal":
         if not st.session_state.is_running:
             if st.button("🚀 LAUNCH FULL DEMO", use_container_width=True, type="primary"):
+                with st.spinner("🤖 AI is analyzing emails..."):
+                    time.sleep(0.5)
                 run_all_tasks()
         else:
             st.markdown("""
@@ -1016,7 +1074,7 @@ with col_center:
 
    
 
-st.markdown("---")
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
     # ============================================
     # COMPARISON MODE
@@ -1168,7 +1226,7 @@ if st.session_state.page_mode == "comparison":
                 st.markdown(f"**Score:** {random_result['score']:.3f}/1.0")
                 st.markdown(f"**Reward:** {random_result['total_reward']:.2f}")
                 
-            st.markdown("---")
+            st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
             
         st.session_state.is_comparing = False
         st.rerun()
@@ -1250,7 +1308,7 @@ if st.session_state.page_mode == "comparison":
             st.session_state.comparison_results = None
             st.rerun()
         
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 # ============================================
 # EDITOR MODE
 # ============================================
@@ -1337,7 +1395,7 @@ if st.session_state.page_mode == "editor":
                     st.rerun()
             
         # Add new email
-        st.markdown("---")
+        st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
         st.markdown("### ➕ Add New Email")
            
         col_new1, col_new2 = st.columns(2)
@@ -1367,7 +1425,7 @@ if st.session_state.page_mode == "editor":
             st.rerun()
         
         # Save to JSON button
-        st.markdown("---")
+        st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
         if st.button("💾 SAVE ALL TO JSON (Apply to Environment)", use_container_width=True, type="primary"):
             with open(json_filename, 'w') as f:
                 json.dump(st.session_state.editor_emails, f, indent=2)
@@ -1423,7 +1481,7 @@ if st.session_state.page_mode == "normal" and st.session_state.tasks_results:
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
     
     # Grader Breakdown Section
     st.markdown("### 📋 GRADER BREAKDOWN")
@@ -1464,7 +1522,7 @@ if st.session_state.page_mode == "normal" and st.session_state.tasks_results:
             
             st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
     
     # AI Decision Log - Only show in NORMAL MODE
     if st.session_state.page_mode == "normal":
@@ -1545,7 +1603,7 @@ elif st.session_state.page_mode == "normal":
 # FOOTER WITH DESCRIPTION
 # ============================================
 
-st.markdown("---")
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
 # Welcome Description at the BOTTOM (only shows in normal mode with no results)
 if not st.session_state.tasks_results and not st.session_state.is_running and st.session_state.page_mode == "normal":
@@ -1600,7 +1658,7 @@ if not st.session_state.tasks_results and not st.session_state.is_running and st
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
 # Original footer
 st.markdown("""
