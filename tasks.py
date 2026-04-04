@@ -131,40 +131,29 @@ class HardTaskGrader(TaskGrader):
             return 0.0
         
         correct_map = {email.id: email.correct_category for email in inbox}
-        fake_urgent_map = {email.id: email.is_fake_urgent for email in inbox}
-        time_sensitive_map = {email.id: email.time_sensitive for email in inbox}
-        urgency_map = {email.id: email.urgency for email in inbox}
         
-        # Part 1: Accuracy (50% of score)
+        # Part 1: Accuracy (70%)
         correct_count = 0
         for action in actions:
             if action.email_id in correct_map:
-                expected = correct_map[action.email_id]
-                actual = action.action.value
-                if actual == expected:
+                if action.action.value == correct_map[action.email_id]:
                     correct_count += 1
         accuracy_score = correct_count / len(inbox) if len(inbox) > 0 else 0.0
-        accuracy_contribution = accuracy_score * 0.5
+        accuracy_contribution = accuracy_score * 0.7
         
-        # Part 2: Fake Urgency Detection (20% of score)
-        fake_urgent_detected = 0
-        fake_urgent_total = sum(1 for email in inbox if email.is_fake_urgent)
-        
-        for action in actions:
-            if action.email_id in fake_urgent_map and fake_urgent_map[action.email_id]:
-                if action.action.value == "spam":
-                    fake_urgent_detected += 1
-        
-        if fake_urgent_total > 0:
-            fake_urgency_score = fake_urgent_detected / fake_urgent_total
+        # Part 2: Efficiency (20%)
+        optimal_steps = len(inbox)
+        actual_steps = len(actions)
+        if actual_steps <= optimal_steps:
+            efficiency_score = 1.0
         else:
-            fake_urgency_score = 1.0
-        fake_urgency_contribution = fake_urgency_score * 0.2
+            extra_ratio = (actual_steps - optimal_steps) / optimal_steps
+            efficiency_score = max(0.0, 1.0 - extra_ratio)
+        efficiency_contribution = efficiency_score * 0.2
         
-        # Part 3: Time Sensitivity (15% of score)
-        # Check if urgent/time-sensitive emails were processed before non-urgent
-        urgent_ids = [email.id for email in inbox if email.urgency == 3 or email.time_sensitive]
-        non_urgent_ids = [email.id for email in inbox if email.urgency == 1 and not email.time_sensitive]
+        # Part 3: Priority (10%)
+        urgent_ids = [email.id for email in inbox if email.correct_category == "urgent"]
+        non_urgent_ids = [email.id for email in inbox if email.correct_category != "urgent"]
         
         urgent_positions = [i for i, a in enumerate(actions) if a.email_id in urgent_ids]
         non_urgent_positions = [i for i, a in enumerate(actions) if a.email_id in non_urgent_ids]
@@ -177,31 +166,20 @@ class HardTaskGrader(TaskGrader):
                 priority_score = urgent_before / len(urgent_positions) if urgent_positions else 1.0
         else:
             priority_score = 1.0
-        priority_contribution = priority_score * 0.15
-        
-        # Part 4: Efficiency (15% of score)
-        optimal_steps = len(inbox)
-        actual_steps = len(actions)
-        if actual_steps <= optimal_steps:
-            efficiency_score = 1.0
-        else:
-            extra_ratio = (actual_steps - optimal_steps) / optimal_steps
-            efficiency_score = max(0.0, 1.0 - extra_ratio)
-        efficiency_contribution = efficiency_score * 0.15
+        priority_contribution = priority_score * 0.1
         
         # Final score
-        final_score = accuracy_contribution + fake_urgency_contribution + priority_contribution + efficiency_contribution
+        final_score = accuracy_contribution + efficiency_contribution + priority_contribution
         
-        # Boss feedback based on performance
-        boss_feedback = ""
+        # Boss feedback
         if final_score >= 0.9:
-            boss_feedback = "🌟 Outstanding! You perfectly handled the inbox, caught all fake urgency emails, and prioritized correctly!"
+            boss_feedback = "🌟 Outstanding! Perfect handling of the inbox!"
         elif final_score >= 0.75:
-            boss_feedback = "👍 Great job! Good detection of fake urgency, but some urgent emails were delayed."
+            boss_feedback = "👍 Great job! Good detection and prioritization."
         elif final_score >= 0.6:
-            boss_feedback = "⚠️ Acceptable, but you missed several fake urgency emails. Need to be more skeptical of 'URGENT' claims."
+            boss_feedback = "⚠️ Acceptable, but could improve priority ordering."
         else:
-            boss_feedback = "🔴 Needs improvement. You fell for fake urgency scams and missed critical real emergencies."
+            boss_feedback = "🔴 Needs improvement on prioritization."
         
         self.boss_feedback = boss_feedback
         
