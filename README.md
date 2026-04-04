@@ -1,4 +1,3 @@
----
 title: Email Triage AI
 emoji: 📧
 colorFrom: purple
@@ -48,7 +47,7 @@ This Space requires the following secrets to be configured in Settings → Repos
 
 | Task | Emails | Difficulty | Description |
 |------|--------|------------|-------------|
-| **Easy** | 10 | 🔵 Simple | Clear urgent/normal/spam signals |
+| **Easy** | 12 | 🔵 Simple | Clear urgent/normal/spam signals |
 | **Medium** | 15 | 🟡 Moderate | Subtle differences requiring careful reading |
 | **Hard** | 40 | 🔴 Challenging | 30 initial + 10 dynamic emails with fake urgency detection |
 
@@ -67,42 +66,36 @@ This Space requires the following secrets to be configured in Settings → Repos
 
 | Component | Weight | What it measures |
 |-----------|--------|------------------|
-| Accuracy | 50% | Correct classification |
-| Fake Urgency Detection | 20% | Identifying scams & phishing |
-| Priority | 15% | Processing urgent emails first |
-| Efficiency | 15% | Minimizing extra actions |
+| Accuracy | 70% | Correct classification |
+| Efficiency | 20% | Minimizing extra actions |
+| Priority | 10% | Processing urgent emails first |
 
-### 🎮 Visual Dashboard
+### 🎮 Visual Dashboard with 3 Modes
 
-The environment includes a professional Streamlit dashboard with:
+The environment includes a professional Streamlit dashboard with three modes:
 
-- **Live email processing view** - Watch AI decisions in real-time
-- **Confidence scores** - See how sure the AI is (0-100%)
-- **AI reasoning** - Understand WHY the AI made each decision
-- **Memory display** - Shows past interactions with each sender
-- **Progress timeline** - Track processing history
-- **Success sound** - Audio feedback on completion
-- **JSON download** - Export results for analysis
+#### 1. 🚀 NORMAL MODE
+- Run AI on all 3 tasks
+- Live email processing with confidence scores
+- Memory display showing past interactions
+- Progress timeline and success sound
+- JSON results download
 
-### 🎲 AI vs Random Comparison
-
-Prove your AI works with side-by-side comparison:
-- **AI Agent** vs **Random Baseline**
-- Live processing on both sides
+#### 2. 🎲 AI vs RANDOM MODE
+- Compare AI performance against random baseline
+- Side-by-side live processing
 - Bar graph comparison
-- Shows AI is significantly better than random guessing
+- Shows AI improvement percentage
+
+#### 3. 📝 EDIT EMAILS MODE
+- View, edit, add, or delete emails for each task
+- Save custom email templates to JSON
+- Changes automatically used in NORMAL MODE
+- No coding required to create test cases
 
 ### 🧠 Multi-User Memory
 
-The AI remembers past interactions with each sender:
-
-| Sender | Personality | Trust Level |
-|--------|-------------|-------------|
-| security@company.com | crisis-mode | 10/10 |
-| client@bigcompany.com | formal | 7/10 |
-| scam@fraud.com | spammy | 1/10 |
-
-Example memory display:
+The AI remembers past interactions with each sender. Example memory display:
 🧠 Memory: Previously 'Project Deadline Update' → NORMAL;
 Previously 'Client Meeting Request' → URGENT;
 
@@ -114,12 +107,12 @@ Using GPT-3.5 / Groq (with proper API keys):
 
 | Task | Score | Accuracy |
 |------|-------|----------|
-| Easy (10 emails) | 1.000 | 100% |
+| Easy (12 emails) | 1.000 | 100% |
 | Medium (15 emails) | 0.887 | 89% |
-| Hard (40 emails) | 0.856 | 86% |
-| **Average** | **0.914** | **91.4%** |
+| Hard (40 emails) | 0.908 | 91% |
+| **Average** | **0.932** | **93.2%** |
 
-**AI is approximately 174% better than random guessing (0.333 baseline)!**
+**AI is approximately 180% better than random guessing (0.333 baseline)!**
 
 ## 🛠️ Local Installation
 
@@ -148,14 +141,11 @@ streamlit run dashboard.py
 
 # Run baseline inference
 python inference.py
-
-# Run OpenEnv validation
-openenv validate
 📁 Project Structure
 text
 email-triage-env/
-├── dashboard.py           # Main Streamlit dashboard
-├── environment.py         # Core environment logic
+├── dashboard.py           # Main Streamlit dashboard (3 modes)
+├── environment.py         # Core environment logic with JSON loading
 ├── models.py             # Pydantic data models
 ├── tasks.py              # Task graders (Easy/Medium/Hard)
 ├── inference.py          # Baseline inference script
@@ -191,7 +181,7 @@ Note: The correct answer is hidden from the AI - it must actually read and under
 Requirement	Status
 Real-world task simulation	✅ Email triage
 OpenEnv spec compliance	✅ reset(), step(), state(), typed models
-3+ tasks with graders	✅ Easy (10), Medium (15), Hard (40)
+3+ tasks with graders	✅ Easy (12), Medium (15), Hard (40)
 Meaningful reward function	✅ Partial rewards (+0.5 to -0.8)
 Baseline inference script	✅ Works with Groq/OpenAI
 Deploy to HF Spaces	✅ Live demo
@@ -210,7 +200,4 @@ MIT
 👨‍💻 Author
 Haripreetham
 
-📞 Support
-For issues or questions, please open an issue on the GitHub repository or contact the author.
-
-🚀 Built for the Meta AI Hackathon | Transparent Grading | Explainable AI | Memory-Enhanced Learning
+🚀 Built for the Meta AI Hackathon | Transparent Grading | Explainable AI | Memory-Enhanced Learning | Custom Email Editor
