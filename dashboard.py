@@ -1185,42 +1185,7 @@ if st.session_state.page_mode == "comparison":
         total_reward = sum(rewards)
         return {'score': score, 'total_reward': total_reward, 'steps': len(actions)}
     
-    @st.cache_data
-    def create_comparison_chart(ai_scores, random_scores, tasks_display):
-        """Create cached comparison chart to prevent reruns"""
-        import matplotlib.pyplot as plt
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        x = range(len(tasks_display))
-        width = 0.35
-        
-        bars1 = ax.bar([i - width/2 for i in x], ai_scores, width, label='🤖 AI Agent', color='#8b5cf6')
-        bars2 = ax.bar([i + width/2 for i in x], random_scores, width, label='🎲 Random Baseline', color='#ec4899')
-        
-        ax.set_ylabel('Score')
-        ax.set_title('AI vs Random Agent Performance', fontsize=14, fontweight='bold')
-        ax.set_xticks(x)
-        ax.set_xticklabels(tasks_display)
-        ax.legend(loc='upper left')
-        ax.set_ylim(0, 1.1)
-        
-        for bar in bars1:
-            height = bar.get_height()
-            ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
-                        xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
-        for bar in bars2:
-            height = bar.get_height()
-            ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
-                        xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
-        
-        ax.set_facecolor('#1a1a3e')
-        fig.patch.set_facecolor('#0a0a2a')
-        ax.tick_params(colors='white')
-        ax.xaxis.label.set_color('white')
-        ax.yaxis.label.set_color('white')
-        ax.title.set_color('white')
-        
-        return fig
+    
 
     def run_full_comparison():
         st.session_state.is_comparing = True
@@ -1295,9 +1260,39 @@ if st.session_state.page_mode == "comparison":
         avg_random = sum(random_scores) / 3
         improvement = ((avg_ai - avg_random) / avg_random) * 100 if avg_random > 0 else 0
          
-        # Create bar chart (cached to prevent shaking)
+        # Create bar chart
         try:
-            fig = create_comparison_chart(ai_scores, random_scores, tasks_display)
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(10, 6))
+            x = range(len(tasks_display))
+            width = 0.35
+                
+            bars1 = ax.bar([i - width/2 for i in x], ai_scores, width, label='🤖 AI Agent', color='#8b5cf6')
+            bars2 = ax.bar([i + width/2 for i in x], random_scores, width, label='🎲 Random Baseline', color='#ec4899')
+               
+            ax.set_ylabel('Score')
+            ax.set_title('AI vs Random Agent Performance', fontsize=14, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels(tasks_display)
+            ax.legend(loc='upper left')
+            ax.set_ylim(0, 1.1)
+             
+            for bar in bars1:
+                height = bar.get_height()
+                ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                            xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+            for bar in bars2:
+                height = bar.get_height()
+                ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                            xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+                
+            ax.set_facecolor('#1a1a3e')
+            fig.patch.set_facecolor('#0a0a2a')
+            ax.tick_params(colors='white')
+            ax.xaxis.label.set_color('white')
+            ax.yaxis.label.set_color('white')
+            ax.title.set_color('white')
+                
             st.pyplot(fig)
         except ImportError:
             st.warning("Matplotlib not installed. Install with: pip install matplotlib")
