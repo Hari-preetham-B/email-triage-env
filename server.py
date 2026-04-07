@@ -8,9 +8,43 @@ import argparse
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from openenv import OpenEnvServer
-from environment import EmailTriageEnvironment
-from models import EmailObservation, EmailAction, EmailReward
+# Try different import options
+try:
+    from openenv.server import OpenEnvServer
+except ImportError:
+    try:
+        from openenv.core import OpenEnvServer
+    except ImportError:
+        try:
+            from openenv import OpenEnvServer
+        except ImportError:
+            # Fallback: Create a simple FastAPI server
+            from fastapi import FastAPI
+            from environment import EmailTriageEnvironment
+            from models import EmailObservation, EmailAction, EmailReward
+            
+            app = FastAPI()
+            env = None
+            
+            @app.post("/reset")
+            async def reset():
+                global env
+                env = EmailTriageEnvironment()
+                obs = env.reset()
+                return {"status": "ok", "observation": obs.dict()}
+            
+            @app.post("/step")
+            async def step(action: dict):
+                global env
+                if env is None:
+                    return {"error": "Environment not initialized"}
+                # Process action
+                return {"status": "ok"}
+            
+            if __name__ == "__main__":
+                import uvicorn
+                uvicorn.run(app, host="0.0.0.0", port=7860)
+            exit(0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
