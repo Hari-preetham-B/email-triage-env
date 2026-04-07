@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose ports
-EXPOSE 7860  # OpenEnv Server
-EXPOSE 8501  # Streamlit Dashboard
+EXPOSE 7860
+EXPOSE 8501
 
 # Create a startup script to run both services
 RUN echo '#!/bin/bash\n\
