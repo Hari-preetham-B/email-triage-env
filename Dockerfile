@@ -32,4 +32,4 @@ wait\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
 # Run the startup script
-CMD ["/app/start.sh"]
+CMD ["streamlit", "run", "dashboard.py", "--server.port=7860", "--server.address=0.0.0.0"]
