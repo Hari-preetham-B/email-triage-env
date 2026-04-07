@@ -5,7 +5,7 @@ colorFrom: purple
 colorTo: pink
 sdk: docker
 sdk_version: "1.0"
-app_port: 7860
+app_port: 8501
 pinned: false
 ---
 
