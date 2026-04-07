@@ -1,6 +1,6 @@
 """
-inference.py - For OpenRouter API
-Works with free models like llama-3-8b-instruct:free
+inference.py - For OpenRouter API with structured logging
+Follows hackathon required [START], [STEP], [END] format
 """
 
 import os
@@ -24,7 +24,7 @@ load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
 API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME", "meta-llama/llama-3-8b-instruct:free")
-TEMPERATURE = float(os.getenv("TEMPERATURE", "0.3"))  # Lower for more consistent
+TEMPERATURE = float(os.getenv("TEMPERATURE", "0.3"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "150"))
 MAX_STEPS = 50
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
@@ -34,7 +34,7 @@ if not API_KEY:
     print("Get your key from: https://openrouter.ai/keys")
     sys.exit(1)
 
-# Initialize OpenAI client with OpenRouter base URL
+# Initialize OpenAI client
 client = OpenAI(
     api_key=API_KEY,
     base_url=API_BASE_URL,
@@ -44,11 +44,29 @@ client = OpenAI(
     }
 )
 
-print(f"✅ Connected to: {API_BASE_URL}")
-print(f"📦 Model: {MODEL_NAME}")
+# ============================================
+# STRUCTURED LOGGING FUNCTIONS
+# ============================================
+
+def log_start(task: str, env: str, model: str):
+    """Emit structured START log"""
+    print(f"[START] task={task}, env={env}, model={model}", flush=True)
+
+
+def log_step(step: int, action: str, reward: float, done: bool, error: str = None):
+    """Emit structured STEP log"""
+    error_str = "null" if error is None else f"\"{error}\""
+    print(f"[STEP] step={step}, action={action}, reward={reward:.3f}, done={str(done).lower()}, error={error_str}", flush=True)
+
+
+def log_end(success: bool, steps: int, score: float, rewards: List[float]):
+    """Emit structured END log"""
+    rewards_str = ",".join([f"{r:.3f}" for r in rewards])
+    print(f"[END] success={str(success).lower()}, steps={steps}, score={score:.3f}, rewards=[{rewards_str}]", flush=True)
+
 
 # ============================================
-# SYSTEM PROMPT (Simplified for better responses)
+# SYSTEM PROMPT
 # ============================================
 
 SYSTEM_PROMPT = """You are an AI email assistant. Your job is to classify emails.
@@ -66,37 +84,31 @@ IMPORTANT RULES:
 
 Do NOT add any explanation. Only output JSON."""
 
+
 def parse_action(response_text: str, current_email_id: int) -> dict:
     """Parse AI response into action dict"""
-    # Try to find JSON
     json_match = re.search(r'\{[^{}]*\}', response_text)
     if json_match:
         try:
             data = json.loads(json_match.group())
             if "email_id" in data and "action" in data:
                 action = data["action"].lower().strip()
-                # Map to valid actions
                 if action in ["urgent", "normal", "spam", "skip", "delete", "archive"]:
                     return {"email_id": data["email_id"], "action": action}
         except:
             pass
     
-    # Fallback: use current email with default action
     return {"email_id": current_email_id, "action": "normal"}
 
-def run_task(task_id: str, task_name: str) -> Tuple[float, int, List[float]]:
-    """Run a single task"""
-    print(f"\n{'='*55}")
-    print(f"📧 {task_name}")
-    print(f"{'='*55}")
-    
+
+def run_task(task_id: str, task_name: str, env_name: str) -> Tuple[float, int, List[float]]:
+    """Run a single task with structured logging"""
     env = EmailTriageEnvironment(task_id=task_id)
     rewards = []
     actions_taken = []
     
     observation = env.reset()
     total_emails = len(env.inbox)
-    print(f"📬 Inbox: {total_emails} emails\n")
     
     done = False
     step = 0
@@ -124,12 +136,7 @@ Choose action:"""
                 max_tokens=MAX_TOKENS,
             )
             response = completion.choices[0].message.content or ""
-            
-            if DEBUG:
-                print(f"🤖 AI: {response[:100]}...")
-                
         except Exception as e:
-            print(f"⚠️ API Error: {e}")
             response = ""
         
         action_data = parse_action(response, current_email.id)
@@ -142,53 +149,49 @@ Choose action:"""
         rewards.append(reward)
         actions_taken.append(action)
         
-        # Print result
-        result_symbol = "✓" if reward > 0 else "✗"
-        print(f"  {result_symbol} Step {step}: {action.action.value} on email {action.email_id} -> {reward:+.2f}")
-        
-        if DEBUG and info.get("breakdown"):
-            msg = info['breakdown'].get('message', '')
-            if msg:
-                print(f"     {msg}")
+        # Emit structured STEP log
+        error = info.get('breakdown', {}).get('message', None)
+        log_step(step=step, action=action.action.value, reward=reward, done=done, error=error)
     
     final_score = grade_task(task_id, actions_taken, env.inbox)
-    total_reward = sum(rewards)
-    
-    print(f"\n📊 Score: {final_score:.3f}/1.0 | Total Reward: {total_reward:.2f} | Steps: {step}")
-    
     env.close()
-    return final_score, step, rewards
+    
+    return final_score, len(actions_taken), rewards
+
 
 def main():
-    print("\n" + "="*60)
-    print("📧 EMAIL TRIAGE ENVIRONMENT")
-    print(f"🔗 API: {API_BASE_URL}")
-    print(f"🤖 Model: {MODEL_NAME}")
-    print(f"🌡️ Temperature: {TEMPERATURE}")
-    print("="*60)
+    # Print environment info (optional, not part of structured logs)
+    print(f"Connected to: {API_BASE_URL}", flush=True)
+    print(f"Model: {MODEL_NAME}", flush=True)
     
     tasks = [
-        ("easy_classification", "EASY: 10 Simple Emails"),
-        ("medium_prioritization", "MEDIUM: 15 Subtle Emails"),
-        ("hard_evolving", "HARD: 40 Evolving Inbox"),
+        ("easy_classification", "EASY", "email-triage-env"),
+        ("medium_prioritization", "MEDIUM", "email-triage-env"),
+        ("hard_evolving", "HARD", "email-triage-env"),
     ]
     
-    results = []
-    for task_id, task_name in tasks:
-        score, steps, rewards = run_task(task_id, task_name)
-        results.append({"name": task_name, "score": score, "steps": steps})
+    all_rewards = []
+    total_steps = 0
+    total_score = 0.0
     
-    # Summary
-    print("\n" + "="*60)
-    print("📊 FINAL RESULTS")
-    print("="*60)
+    for task_id, task_name, env_name in tasks:
+        # Emit START log
+        log_start(task=task_name, env=env_name, model=MODEL_NAME)
+        
+        # Run task
+        score, steps, rewards = run_task(task_id, task_name, env_name)
+        
+        # Emit END log
+        success = score >= 0.5
+        log_end(success=success, steps=steps, score=score, rewards=rewards)
+        
+        total_score += score
+        total_steps += steps
+        all_rewards.extend(rewards)
     
-    for r in results:
-        print(f"  {r['name']}: {r['score']:.3f}/1.0 ({r['steps']} steps)")
-    
-    avg_score = sum(r["score"] for r in results) / len(results)
-    print(f"\n🏆 AVERAGE SCORE: {avg_score:.3f}/1.0")
-    print("="*60)
+    avg_score = total_score / 3
+    print(f"\nAverage Score: {avg_score:.3f}/1.0", flush=True)
+
 
 if __name__ == "__main__":
     main()
