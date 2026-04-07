@@ -24,7 +24,7 @@ EXPOSE 8501
 # Create a startup script to run both services
 RUN echo '#!/bin/bash\n\
 echo "Starting OpenEnv Server on port 7860..."\n\
-openenv serve --host 0.0.0.0 --port 7860 &\n\
+python server.py --port 7860 &\n\
 sleep 2\n\
 echo "Starting Streamlit Dashboard on port 8501..."\n\
 streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0 &\n\
