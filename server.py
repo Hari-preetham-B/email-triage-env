@@ -26,13 +26,15 @@ except ImportError:
             app = FastAPI()
             env = None
             
+            @app.get("/reset")
             @app.post("/reset")
             async def reset():
                 global env
                 env = EmailTriageEnvironment()
                 obs = env.reset()
                 return {"status": "ok", "observation": obs.dict()}
-            
+                
+            @app.get("/reset")
             @app.post("/step")
             async def step(action: dict):
                 global env
