@@ -102,9 +102,9 @@ except ImportError:
             async def get_openapi():
                 return app.openapi()
             
+            # At the very bottom of server.py, OUTSIDE all try/except blocks
             def main():
-                """Entry point for openenv-server command"""
-                import uvicorn
+                import uvicorn, argparse
                 parser = argparse.ArgumentParser()
                 parser.add_argument("--port", type=int, default=7860)
                 args = parser.parse_args()
