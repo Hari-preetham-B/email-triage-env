@@ -27,6 +27,7 @@ except ImportError:
             env = None
             
             @app.get("/reset")
+            @app.post("/reset")
             async def reset():
                 global env
                 env = EmailTriageEnvironment()
