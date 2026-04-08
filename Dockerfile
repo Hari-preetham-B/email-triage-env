@@ -11,4 +11,5 @@ COPY . .
 
 EXPOSE 7860
 
-CMD ["python", "server.py", "--port", "7860"]
+# Change this line from server.py to dashboard.py
+CMD ["streamlit", "run", "dashboard.py", "--server.port", "7860", "--server.address", "0.0.0.0"]
