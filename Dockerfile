@@ -8,7 +8,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire server directory
-COPY server/ ./server/
+COPY server.py .
+
 COPY models.py environment.py tasks.py ./
 COPY emails_*.json ./
 
@@ -16,4 +17,5 @@ ENV PYTHONPATH=/app
 
 EXPOSE 7860
 
-CMD ["python", "-m", "server.app", "--port", "7860"]
+
+CMD ["python", "-m", "server", "--port", "7860"]
