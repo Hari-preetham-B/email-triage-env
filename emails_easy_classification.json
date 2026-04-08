@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "subject": "URGENT: Production Server Down",
+    "body": "The main server is not responding. Customer facing issues!",
+    "sender": "alert@company.com",
+    "correct_category": "urgent",
+    "urgency": 3,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 2,
+    "subject": "Weekly Team Meeting",
+    "body": "Reminder: Team sync at 2 PM tomorrow",
+    "sender": "manager@company.com",
+    "correct_category": "normal",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 3,
+    "subject": "YOU WON $1,000,000!!!",
+    "body": "Click here to claim your prize!",
+    "sender": "lottery@spam.com",
+    "correct_category": "spam",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 4,
+    "subject": "Security Alert: Password Change Required",
+    "body": "Please update your password for security purposes",
+    "sender": "security@company.com",
+    "correct_category": "urgent",
+    "urgency": 2,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 5,
+    "subject": "Lunch Menu This Week",
+    "body": "Here's the cafeteria menu for the week",
+    "sender": "facilities@company.com",
+    "correct_category": "normal",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 6,
+    "subject": "Your Amazon Order #ORD-12345",
+    "body": "Your package has been delivered",
+    "sender": "no-reply@amazon.com",
+    "correct_category": "normal",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 7,
+    "subject": "URGENT: Your subscription expires today",
+    "body": "Renew now to avoid service interruption",
+    "sender": "billing@fake-service.com",
+    "correct_category": "spam",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 8,
+    "subject": "Q3 Financial Report Ready",
+    "body": "The quarterly financial report is available for review",
+    "sender": "finance@company.com",
+    "correct_category": "normal",
+    "urgency": 2,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 9,
+    "subject": "CRITICAL: Data Backup Failed",
+    "body": "The automated backup failed last night. Manual intervention needed.",
+    "sender": "it@company.com",
+    "correct_category": "urgent",
+    "urgency": 3,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 10,
+    "subject": "Free Gift Card Inside!",
+    "body": "Claim your $500 gift card now! Limited time offer.",
+    "sender": "promo@spam-central.com",
+    "correct_category": "spam",
+    "urgency": 1,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 11,
+    "subject": "Security Alert: Multiple Failed Logins",
+    "body": "We detected 5 failed login attempts to your account from an unknown IP. Please review your recent activity.",
+    "sender": "security@company.com",
+    "correct_category": "urgent",
+    "urgency": 3,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  },
+  {
+    "id": 12,
+    "subject": "Password Reset Request",
+    "body": "A password reset was requested for your account. If this wasn't you, please contact IT immediately.",
+    "sender": "it-security@company.com",
+    "correct_category": "urgent",
+    "urgency": 3,
+    "time_sensitive": false,
+    "is_fake_urgent": false
+  }
+]

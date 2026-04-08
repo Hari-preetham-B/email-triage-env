@@ -9,8 +9,19 @@ This is the brain of your environment. It handles:
 
 from typing import Optional, Tuple, List, Dict
 from models import (
-    Email, EmailAction, EmailObservation, EmailReward, ActionType, EmailView
+    Email, EmailAction, EmailObservation, EmailReward, ActionType, EmailView, SenderProfile
 )
+import json
+import os
+
+def load_emails_from_json(task_id):
+    """Load emails from JSON file if it exists"""
+    filename = f"emails_{task_id}.json"
+    if os.path.exists(filename):
+        with open(filename, 'r') as f:
+            emails_data = json.load(f)
+        return emails_data
+    return None
 
 
 class EmailTriageEnvironment:
@@ -41,14 +52,137 @@ class EmailTriageEnvironment:
         self.max_steps: int = 50           # Limit to prevent infinite loops
         self.done: bool = False            # Whether task is complete
         
+        # ADD THESE TWO LINES FOR MULTI-USER SIMULATION
+        self.sender_profiles: dict = {}
+        self._init_sender_profiles()
         # Populate inbox based on selected task
         self._setup_task()
     
+    def _init_sender_profiles(self):
+        """Initialize sender personalities for multi-user simulation"""
+        self.sender_profiles = {
+            "alert@company.com": SenderProfile(
+                name="System Alerts",
+                email="alert@company.com",
+                personality="crisis-mode",
+                trust_level=9,
+                previous_topics=["server", "database", "system"],
+                previous_urgency=[3, 3]
+            ),
+            "manager@company.com": SenderProfile(
+                name="Manager",
+                email="manager@company.com",
+                personality="casual",
+                trust_level=8,
+                previous_topics=["meetings", "team", "updates"],
+                previous_urgency=[1, 2]
+            ),
+            "lottery@spam.com": SenderProfile(
+                name="Lottery Scam",
+                email="lottery@spam.com",
+                personality="spammy",
+                trust_level=1,
+                previous_topics=["prize", "winner", "money"],
+                previous_urgency=[1]
+            ),
+            "client@bigcompany.com": SenderProfile(
+                name="Big Company Client",
+                email="client@bigcompany.com",
+                personality="formal",
+                trust_level=7,
+                previous_topics=["contract", "review", "meeting"],
+                previous_urgency=[2, 3]
+            ),
+            "hr@company.com": SenderProfile(
+                name="HR Department",
+                email="hr@company.com",
+                personality="formal",
+                trust_level=9,
+                previous_topics=["payroll", "benefits", "policy"],
+                previous_urgency=[1]
+            ),
+            "security@company.com": SenderProfile(
+                name="Security Team",
+                email="security@company.com",
+                personality="crisis-mode",
+                trust_level=10,
+                previous_topics=["breach", "alert", "unauthorized"],
+                previous_urgency=[3, 3]
+            ),
+            "support@company.com": SenderProfile(
+                name="Customer Support",
+                email="support@company.com",
+                personality="urgent-prone",
+                trust_level=8,
+                previous_topics=["complaint", "escalation", "client"],
+                previous_urgency=[2, 3]
+            ),
+            "scam@fraud.com": SenderProfile(
+                name="Scam Alert",
+                email="scam@fraud.com",
+                personality="spammy",
+                trust_level=1,
+                previous_topics=["lottery", "prize", "winner"],
+                previous_urgency=[1]
+            ),
+            "tech-alerts@company.com": SenderProfile(
+                name="Technical Alerts",
+                email="tech-alerts@company.com",
+                personality="crisis-mode",
+                trust_level=9,
+                previous_topics=["server", "database", "migration"],
+                previous_urgency=[3]
+            ),
+        }
+    
+    def get_sender_history(self, sender_email: str, limit: int = 3) -> list:
+        """Get recent emails from a specific sender"""
+        history = []
+        for email in reversed(self.processed):
+            if email.sender == sender_email and len(history) < limit:
+                history.append({
+                    'subject': email.subject,
+                    'category': email.correct_category,
+                    'urgency': email.urgency
+                })
+        return history
+
     def _setup_task(self):
         """
         Create emails for the selected task.
-        Each task has different difficulty levels.
+        First tries to load from JSON file, otherwise uses hardcoded emails.
         """
+        import json
+        import os
+        
+        # Try to load from JSON file first
+        filename = f"emails_{self.task_id}.json"
+        
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r') as f:
+                    emails_data = json.load(f)
+                
+                self.inbox = []
+                for email_data in emails_data:
+                    self.inbox.append(Email(
+                        id=email_data['id'],
+                        subject=email_data['subject'],
+                        body=email_data['body'],
+                        sender=email_data['sender'],
+                        correct_category=email_data['correct_category'],
+                        urgency=email_data.get('urgency', 1),
+                        time_sensitive=email_data.get('time_sensitive', False),
+                        expires_in=email_data.get('expires_in', 999),
+                        is_fake_urgent=email_data.get('is_fake_urgent', False),
+                        fake_reason=email_data.get('fake_reason', '')
+                    ))
+                print(f"Loaded {len(self.inbox)} emails from {filename}")  # Debug
+                return
+            except Exception as e:
+                print(f"Error loading JSON: {e}")
+        
+        # Fall back to hardcoded emails
         if self.task_id == "easy_classification":
             self._setup_easy_task()
         elif self.task_id == "medium_prioritization":
@@ -56,94 +190,102 @@ class EmailTriageEnvironment:
         elif self.task_id == "hard_evolving":
             self._setup_hard_task()
         else:
-            # Default to easy task if unknown
             self._setup_easy_task()
     
     def _setup_easy_task(self):
         """
-        EASY TASK: 3 emails with clear signals.
-        
-        These emails are obvious:
-        - Email 1: Clear urgent (server down)
-        - Email 2: Clear normal (team meeting)
-        - Email 3: Clear spam (lottery winner)
+        EASY TASK: 10 emails with clear signals
         """
         self.inbox = [
-            Email(
-                id=1,
-                subject="URGENT: Production Server Down",
+            Email(id=1, subject="URGENT: Production Server Down", 
                 body="The main server is not responding. Customer facing issues!",
-                sender="alert@company.com",
-                correct_category="urgent",
-                urgency=3
-            ),
-            Email(
-                id=2,
-                subject="Weekly Team Meeting",
+                sender="alert@company.com", correct_category="urgent", urgency=3),
+            Email(id=2, subject="Weekly Team Meeting", 
                 body="Reminder: Team sync at 2 PM tomorrow",
-                sender="manager@company.com",
-                correct_category="normal",
-                urgency=1
-            ),
-            Email(
-                id=3,
-                subject="YOU WON $1,000,000!!!",
+                sender="manager@company.com", correct_category="normal", urgency=1),
+            Email(id=3, subject="YOU WON $1,000,000!!!", 
                 body="Click here to claim your prize!",
-                sender="lottery@spam.com",
-                correct_category="spam",
-                urgency=1
-            ),
+                sender="lottery@spam.com", correct_category="spam", urgency=1),
+            Email(id=4, subject="Security Alert: Password Change Required", 
+                body="Please update your password for security purposes",
+                sender="security@company.com", correct_category="urgent", urgency=2),
+            Email(id=5, subject="Lunch Menu This Week", 
+                body="Here's the cafeteria menu for the week",
+                sender="facilities@company.com", correct_category="normal", urgency=1),
+            Email(id=6, subject="Your Amazon Order #ORD-12345", 
+                body="Your package has been delivered",
+                sender="no-reply@amazon.com", correct_category="normal", urgency=1),
+            Email(id=7, subject="URGENT: Your subscription expires today", 
+                body="Renew now to avoid service interruption",
+                sender="billing@fake-service.com", correct_category="spam", urgency=1),
+            Email(id=8, subject="Q3 Financial Report Ready", 
+                body="The quarterly financial report is available for review",
+                sender="finance@company.com", correct_category="normal", urgency=2),
+            Email(id=9, subject="CRITICAL: Data Backup Failed", 
+                body="The automated backup failed last night. Manual intervention needed.",
+                sender="it@company.com", correct_category="urgent", urgency=3),
+            Email(id=10, subject="Free Gift Card Inside!", 
+                body="Claim your $500 gift card now! Limited time offer.",
+                sender="promo@spam-central.com", correct_category="spam", urgency=1),
+                    # Security alert examples for learning
+            Email(id=11, subject="Security Alert: Multiple Failed Logins", 
+                body="We detected 5 failed login attempts to your account from an unknown IP. Please review your recent activity.",
+                sender="security@company.com", correct_category="urgent", urgency=3),
+            Email(id=12, subject="Password Reset Request", 
+                body="A password reset was requested for your account. If this wasn't you, please contact IT immediately.",
+                sender="it-security@company.com", correct_category="urgent", urgency=3),
         ]
     
     def _setup_medium_task(self):
         """
-        MEDIUM TASK: 5 emails with subtle differences.
-        
-        These emails require careful reading:
-        - Some emails look urgent but aren't
-        - Some look normal but are actually important
+        MEDIUM TASK: 15 emails with subtle differences
         """
         self.inbox = [
-            Email(
-                id=1,
-                subject="RE: Project Deadline",
+            Email(id=1, subject="RE: Project Deadline", 
                 body="Can we extend by one day? Almost done.",
-                sender="junior@company.com",
-                correct_category="normal",
-                urgency=1
-            ),
-            Email(
-                id=2,
-                subject="IMPORTANT: Client Review",
+                sender="junior@company.com", correct_category="normal", urgency=1),
+            Email(id=2, subject="IMPORTANT: Client Review", 
                 body="The client meeting is at 3 PM today. Please attend.",
-                sender="client@bigcompany.com",
-                correct_category="urgent",
-                urgency=3
-            ),
-            Email(
-                id=3,
-                subject="Free Gift Card Inside",
+                sender="client@bigcompany.com", correct_category="urgent", urgency=3),
+            Email(id=3, subject="Free Gift Card Inside", 
                 body="You've been selected for a free $50 gift card!",
-                sender="promo@retail.com",
-                correct_category="spam",
-                urgency=1
-            ),
-            Email(
-                id=4,
-                subject="Your Payroll Update",
+                sender="promo@retail.com", correct_category="spam", urgency=1),
+            Email(id=4, subject="Your Payroll Update", 
                 body="Please verify your information for next month's payroll",
-                sender="hr@company.com",
-                correct_category="urgent",
-                urgency=2
-            ),
-            Email(
-                id=5,
-                subject="Newsletter: Weekly Updates",
+                sender="hr@company.com", correct_category="urgent", urgency=2),
+            Email(id=5, subject="Newsletter: Weekly Updates", 
                 body="Here's what happened this week...",
-                sender="updates@newsletter.com",
-                correct_category="normal",
-                urgency=1
-            ),
+                sender="updates@newsletter.com", correct_category="normal", urgency=1),
+            Email(id=6, subject="Team Building Event", 
+                body="Sign up for the team building activity next Friday",
+                sender="events@company.com", correct_category="normal", urgency=1),
+            Email(id=7, subject="URGENT: Invoice Overdue", 
+                body="Your invoice #INV-789 is past due. Immediate payment required.",
+                sender="billing@fake-collector.com", correct_category="spam", urgency=1),
+            Email(id=8, subject="Server Maintenance Scheduled", 
+                body="Planned maintenance this Sunday from 2-4 AM",
+                sender="sysadmin@company.com", correct_category="normal", urgency=1),
+            Email(id=9, subject="Client Complaint Escalated", 
+                body="VIP client is unhappy with response time. Please call immediately.",
+                sender="support@company.com", correct_category="urgent", urgency=3),
+            Email(id=10, subject="Your Account Will Be Closed", 
+                body="Final warning: Your account will be permanently closed.",
+                sender="security@fake-alert.com", correct_category="spam", urgency=1),
+            Email(id=11, subject="Code Review Request", 
+                body="Please review my pull request for the auth module",
+                sender="developer@company.com", correct_category="normal", urgency=1),
+            Email(id=12, subject="Emergency: Database Connection Lost", 
+                body="The database connection pool is exhausted. Immediate action needed.",
+                sender="dba@company.com", correct_category="urgent", urgency=3),
+            Email(id=13, subject="You've Won a Free iPhone!", 
+                body="Click here to claim your prize!",
+                sender="winner@spam.com", correct_category="spam", urgency=1),
+            Email(id=14, subject="Budget Review Meeting", 
+                body="Please review the attached budget before tomorrow's meeting",
+                sender="finance@company.com", correct_category="normal", urgency=2),
+            Email(id=15, subject="SECURITY BREACH: Action Required", 
+                body="Unauthorized access detected. Please reset your password immediately.",
+                sender="it-security@company.com", correct_category="urgent", urgency=3),
         ]
     
     def _setup_hard_task(self):
@@ -309,6 +451,123 @@ class EmailTriageEnvironment:
             sender="security@company.com", correct_category="urgent", urgency=3,
             time_sensitive=True, expires_in=1
         ))
+
+            # Additional emails from SAME senders to show memory accumulation
+    
+        # Email 21: Second email from client@bigcompany.com
+        self.inbox.append(Email(
+            id=21, subject="Follow-up: Contract Renewal", 
+            body="Following up on our previous discussion about the contract renewal. Need your feedback by Friday.",
+            sender="client@bigcompany.com", correct_category="urgent", urgency=2,
+            time_sensitive=True, expires_in=5
+        ))
+        
+        # Email 22: Second email from security@company.com
+        self.inbox.append(Email(
+            id=22, subject="Security Update: Patch Required", 
+            body="Please update your system with the latest security patch. This is a routine update.",
+            sender="security@company.com", correct_category="normal", urgency=1
+        ))
+        
+        # Email 23: Second email from hr@company.com
+        self.inbox.append(Email(
+            id=23, subject="Reminder: Benefits Deadline", 
+            body="Just a reminder that benefits enrollment ends next week. Don't miss the deadline.",
+            sender="hr@company.com", correct_category="normal", urgency=2
+        ))
+        
+        # Email 24: Second fake urgency from scam@fraud.com
+        self.inbox.append(Email(
+            id=24, subject="FINAL NOTICE: Your account suspended", 
+            body="This is your FINAL NOTICE. Your account will be permanently suspended.",
+            sender="scam@fraud.com", correct_category="spam", urgency=1,
+            is_fake_urgent=True, fake_reason="Fake account suspension scam"
+        ))
+        
+        # Email 25: Second email from tech-alerts@company.com
+        self.inbox.append(Email(
+            id=25, subject="System Maintenance Scheduled", 
+            body="Scheduled maintenance for Sunday at 2 AM. Expected downtime: 2 hours.",
+            sender="tech-alerts@company.com", correct_category="normal", urgency=1
+        ))
+        
+        # Email 26: Second email from ceo@company.com
+        self.inbox.append(Email(
+            id=26, subject="Q2 Strategy Meeting", 
+            body="Please prepare your Q2 strategy presentation for next week's board meeting.",
+            sender="ceo@company.com", correct_category="normal", urgency=2
+        ))
+        
+        # Email 27: Third email from client@bigcompany.com (shows accumulated memory)
+        self.inbox.append(Email(
+            id=27, subject="URGENT: Contract Signature Needed", 
+            body="The client needs the signed contract by end of day today. Please prioritize.",
+            sender="client@bigcompany.com", correct_category="urgent", urgency=3,
+            time_sensitive=True, expires_in=1
+        ))
+        
+        # Email 28: Second email from support@company.com
+        self.inbox.append(Email(
+            id=28, subject="Client Satisfaction Survey Results", 
+            body="Our quarterly client satisfaction results are in. Review attached report.",
+            sender="support@company.com", correct_category="normal", urgency=1
+        ))
+        
+        # Email 29: Third email from scam@fraud.com
+        self.inbox.append(Email(
+            id=29, subject="Congratulations! You've been selected", 
+            body="You've been selected for our exclusive prize. Click here to claim.",
+            sender="scam@fraud.com", correct_category="spam", urgency=1,
+            is_fake_urgent=True, fake_reason="Fake prize scam"
+        ))
+        
+        # Email 30: Third email from security@company.com
+        self.inbox.append(Email(
+            id=30, subject="Security Breach Attempt Detected", 
+            body="We detected multiple failed login attempts from an unknown IP. No action needed.",
+            sender="security@company.com", correct_category="normal", urgency=2
+        ))
+
+                # PENDING EMAILS - These will arrive dynamically while AI processes
+        self.pending_emails = [
+            Email(id=31, subject="🔥 URGENT: Customer Outage Reported", 
+                  body="Multiple customers reporting service interruption. Immediate investigation required.",
+                  sender="support@company.com", correct_category="urgent", urgency=3,
+                  time_sensitive=True, expires_in=2),
+            Email(id=32, subject="Your Amazon Prime Membership", 
+                  body="Your membership will renew tomorrow. Click here to cancel.",
+                  sender="prime@amazon-scam.com", correct_category="spam", urgency=1,
+                  is_fake_urgent=True, fake_reason="Fake Amazon subscription scam"),
+            Email(id=33, subject="Weekly Sales Report", 
+                  body="Q2 sales figures are attached for review.",
+                  sender="sales@company.com", correct_category="normal", urgency=1),
+            Email(id=34, subject="⚠️ CRITICAL: SSL Certificate Expiring", 
+                  body="Your SSL certificate expires in 24 hours. Website will be inaccessible.",
+                  sender="security@company.com", correct_category="urgent", urgency=3,
+                  time_sensitive=True, expires_in=2),
+            Email(id=35, subject="Congratulations! You're a Winner!", 
+                  body="You've been selected for our grand prize. Claim now!",
+                  sender="prize@winner-scam.com", correct_category="spam", urgency=1,
+                  is_fake_urgent=True, fake_reason="Fake prize scam"),
+            Email(id=36, subject="Team Building Feedback", 
+                  body="Please fill out the anonymous feedback form for last week's event.",
+                  sender="hr@company.com", correct_category="normal", urgency=1),
+            Email(id=37, subject="🔴 EMERGENCY: Data Center Fire Alarm", 
+                  body="Fire alarm triggered at main data center. Evacuation in progress.",
+                  sender="facilities@company.com", correct_category="urgent", urgency=3,
+                  time_sensitive=True, expires_in=1),
+            Email(id=38, subject="Your Netflix Account Suspended", 
+                  body="Payment failed. Update your billing info now!",
+                  sender="netflix@fake-billing.com", correct_category="spam", urgency=1,
+                  is_fake_urgent=True, fake_reason="Fake Netflix suspension scam"),
+            Email(id=39, subject="Product Launch Update", 
+                  body="Marketing materials for next week's launch are ready.",
+                  sender="marketing@company.com", correct_category="normal", urgency=2),
+            Email(id=40, subject="URGENT: Wire Transfer Required", 
+                  body="We need to authorize a wire transfer for the vendor payment today.",
+                  sender="cfo@company.com", correct_category="urgent", urgency=2,
+                  time_sensitive=True, expires_in=4),
+        ]
     
     def reset(self) -> EmailObservation:
         """
@@ -332,7 +591,7 @@ class EmailTriageEnvironment:
             self._setup_medium_task()
         elif self.task_id == "hard_evolving":
             self._setup_hard_task()
-        
+        self._setup_task()
         # Return the first email observation
         return self._get_current_observation()
     
@@ -374,7 +633,7 @@ class EmailTriageEnvironment:
         
         # For hard task: add new emails periodically (every 3 steps)
         if self.task_id == "hard_evolving" and hasattr(self, 'pending_emails'):
-            if self.step_count % 3 == 0 and self.step_count < 15 and self.pending_emails:
+            if self.step_count % 3 == 0 and self.pending_emails:
                 new_email = self.pending_emails.pop(0)
                 self.inbox.append(new_email)
         
@@ -422,6 +681,10 @@ class EmailTriageEnvironment:
             # Perfect match!
             if correct == "urgent":
                 reward = 0.5
+                # Bonus for security-related emails
+                if "security" in email.sender.lower() or any(kw in email.subject.lower() for kw in ["security", "alert", "breach", "password"]):
+                    reward += 0.2
+                    breakdown["message"] = f"✓ Correctly marked urgent! (+0.5) + Security bonus (+0.2)"
                 breakdown["message"] = f"✓ Correctly marked urgent! (+0.5)"
             elif correct == "normal":
                 reward = 0.3

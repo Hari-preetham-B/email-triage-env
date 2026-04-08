@@ -1,4 +1,4 @@
-# Dockerfile for Email Triage Environment
+# Dockerfile for Email Triage Environment - Dual Mode
 
 FROM python:3.10-slim
 
@@ -17,8 +17,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Expose the port for the environment server
+# Expose ports
 EXPOSE 7860
+EXPOSE 8501
 
-# Command to run the environment server
-CMD ["openenv", "serve", "--host", "0.0.0.0", "--port", "7860"]
+# Create a startup script to run both services
+RUN echo '#!/bin/bash\n\
+echo "Starting OpenEnv Server on port 7860..."\n\
+python server.py --port 7860 &\n\
+sleep 2\n\
+echo "Starting Streamlit Dashboard on port 8501..."\n\
+streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0 &\n\
+wait\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Run the startup script
+CMD ["/app/start.sh"]

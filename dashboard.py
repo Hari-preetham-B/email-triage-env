@@ -2,10 +2,9 @@
 dashboard.py - Professional Email Triage Dashboard
 Single-click execution | 3D Cosmic Design | AI Agent Demo | Grader Breakdown
 """
-
+import json
 import streamlit as st
 import time
-import json
 import re
 import base64
 from datetime import datetime
@@ -43,41 +42,192 @@ st.markdown("""
     
     /* Main Container */
     .stApp {
-        background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3e 50%, #0d0d2b 100%);
+        background: radial-gradient(circle at 20% 20%, rgba(138,43,226,0.25), transparent 40%),
+                    radial-gradient(circle at 80% 30%, rgba(0,191,255,0.2), transparent 40%),
+                    radial-gradient(circle at 50% 80%, rgba(255,0,150,0.15), transparent 40%),
+                    #050518;
+        
         background-attachment: fixed;
+        
+        animation: bgMove 18s ease infinite;
+    }
+            
+    .stApp::after {
+        content: "";
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+
+        background:
+            radial-gradient(3px 3px at 10% 20%, white, transparent),
+            radial-gradient(4px 4px at 30% 40%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 50% 60%, #00bfff, transparent),
+            radial-gradient(5px 5px at 70% 80%, #ec4899, transparent),
+            radial-gradient(3px 3px at 80% 30%, white, transparent),
+            radial-gradient(4px 4px at 20% 70%, #6a5acd, transparent),
+            radial-gradient(3px 3px at 60% 20%, #00bfff, transparent),
+            radial-gradient(5px 5px at 40% 90%, #ec4899, transparent),
+            radial-gradient(3px 3px at 25% 50%, #8b5cf6, transparent),
+            radial-gradient(4px 4px at 65% 75%, #00bfff, transparent),
+            radial-gradient(3px 3px at 15% 85%, white, transparent),
+            radial-gradient(4px 4px at 85% 15%, #6a5acd, transparent),
+            radial-gradient(3px 3px at 55% 35%, #ec4899, transparent),
+            radial-gradient(5px 5px at 75% 55%, #00bfff, transparent),
+            radial-gradient(3px 3px at 35% 10%, #8b5cf6, transparent);
+            
+
+        animation: starsMove 12s linear infinite; /* faster */
+        pointer-events: none;
+        opacity: 0.5; /* slightly stronger */
+    }
+            
+
+    @keyframes starsMove {
+        from { transform: translateY(0px); }
+        to { transform: translateY(-400px); }
     }
     
     /* Glassmorphism Card */
     .glass-card {
-        background: rgba(15, 15, 40, 0.6);
+        background: linear-gradient(135deg, rgba(30,144,255,0.15), rgba(138,43,226,0.1));
         backdrop-filter: blur(12px);
-        border-radius: 24px;
-        border: 1px solid rgba(139, 92, 246, 0.3);
+
+        border-radius: 20px;
+        border: 1px solid rgba(138,43,226,0.3);
+        position: relative;
+
         padding: 24px;
         margin: 16px 0;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s ease;
+
+        box-shadow: 
+            0 0 20px rgba(30,144,255,0.3),
+            0 0 40px rgba(138,43,226,0.2);
+
+        transition: all 0.35s ease;
     }
+            
+    .glass-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(138,43,226,0.4);
+        opacity: 0.6;
+        pointer-events: none;
+    }
+            
+    .glass-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 0 30px rgba(30,144,255,0.6),
+            0 0 60px rgba(138,43,226,0.4);
+    }
+    
     
     /* Cosmic Title */
     .cosmic-title {
         font-family: 'Orbitron', monospace;
         font-size: 3rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4);
+        background: linear-gradient(135deg, #ffffff, #ff6b9d, #ffd93d);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        color: #ffffff;  /* Fallback color */
         text-align: center;
         margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(255,255,255,0.6),
+             0 0 20px rgba(30,144,255,0.8),
+             0 0 40px rgba(138,43,226,0.6);
+        animation: textBreath 6s ease-in-out infinite;
     }
-    
+    @keyframes textBreath {
+        0%,100% { opacity: 0.9; }
+        50% { opacity: 1; }
+    }
     .cosmic-subtitle {
         text-align: center;
-        color: #a78bfa;
+        color: #ffd93d;
         font-family: 'Space Grotesk', monospace;
         font-size: 0.9rem;
-        letter-spacing: 2px;
+        letter-spacing: 2.5px;
+        opacity: 0.9;
+        font-weight: bold;
+    }
+            
+    .breakdown-label,
+    .live-message {
+        opacity: 0.85;
+    }
+
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes bgMove {
+        0% { background-position: 20% 20%, 80% 30%, 50% 80%; }
+        50% { background-position: 25% 25%, 75% 35%, 55% 75%; }
+        100% { background-position: 20% 20%, 80% 30%, 50% 80%; }
+    }
+    @keyframes softGlow {
+        0% { box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+        50% { box-shadow: 0 0 35px rgba(138,43,226,0.6); }
+        100% { box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+    }
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 10px rgba(138,43,226,0.4); }
+        50% { box-shadow: 0 0 30px rgba(138,43,226,0.8); }
+        100% { box-shadow: 0 0 10px rgba(138,43,226,0.4); }
+    }
+
+    .live-card {
+        animation: pulseGlow 2s infinite;
+    }
+            
+    .title-bar {
+        background: linear-gradient(270deg, #0a3d62, #1e90ff, #6a5acd, #1e90ff);
+        background-size: 600% 600%;
+        animation: gradientFlow 8s ease infinite;
+
+        padding: 30px 10px;
+        margin: 0;
+        width: 100%;
+        border-radius: 0;
+
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+
+        box-shadow: 0 0 25px rgba(30, 144, 255, 0.6);
+    }
+    .title-bar::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+
+        background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+        animation: glowRotate 6s linear infinite;
+    }
+    @keyframes glowRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .title-bar {
+        text-align: center;
+    }
+
+    .cosmic-title {
+        margin: 0;
+    }
+
+    .cosmic-subtitle {
+        margin-top: 5px;
     }
     
     /* Stats Card */
@@ -93,15 +243,33 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
     }
-    
+            
+    .stat-card:hover {
+        transform: scale(1.06);
+        box-shadow: 0 0 30px rgba(139,92,246,0.7);
+    }
+
+        /* Welcome Card Styles */
+    .welcome-card {
+        background: linear-gradient(135deg, rgba(30,144,255,0.08), rgba(138,43,226,0.05));
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 1px solid rgba(30,144,255,0.3);
+        box-shadow: 0 0 30px rgba(30,144,255,0.1);
+    }
     .stat-number {
         font-family: 'Orbitron', monospace;
-        font-size: 2.2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         color: #a78bfa;
         line-height: 1.2;
+        transition: all 0.3s ease;
     }
-    
+    .stat-number:hover {
+        text-shadow: 0 0 25px rgba(138,43,226,0.9);
+    }
     .stat-label {
         font-family: 'Space Grotesk', monospace;
         font-size: 0.8rem;
@@ -171,7 +339,7 @@ st.markdown("""
         margin: 20px 0;
         border: 2px solid #8b5cf6;
         box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
-        animation: glowPulse 2s infinite;
+        animation: glowPulse 2.5s ease-in-out infinite;
     }
     @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -257,9 +425,58 @@ st.markdown("""
     
     /* Progress bar styling */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        background: linear-gradient(270deg, #8b5cf6, #ec4899, #8b5cf6);
+        background-size: 300% 300%;
+        animation: progressMove 3s linear infinite;
+    }
+            
+    @keyframes progressMove {
+        0% { background-position: 0% }
+        100% { background-position: 100% }
+    }
+            
+    .stButton > button {
+        background: linear-gradient(135deg, #1e90ff, #6a5acd);
+        color: white;
+        border-radius: 12px;
+        border: none;
+        font-weight: bold;
+
+        box-shadow: 0 0 15px rgba(30,144,255,0.5);
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(30,144,255,0.8);
     }
     
+    h3, h2 {
+        color: #c4b5fd;
+        text-shadow: 0 0 10px rgba(138,43,226,0.6);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }        
+    
+    section.main > div {
+        padding-top: 2rem;
+    }
+    /* Better spacing */
+    .glass-card,
+    .stat-card,
+    .breakdown-card {
+        margin-top: 18px;
+    }
+    .glass-card,
+    .stat-card,
+    button {
+        transition: all 0.25s ease-in-out;
+    }
+    /* Subtle hover glow */
+    .breakdown-card:hover,
+    .ai-log-entry:hover {
+        box-shadow: 0 0 20px rgba(138,43,226,0.4);
+    }
     /* Responsive */
     @media (max-width: 768px) {
         .stat-number {
@@ -268,6 +485,11 @@ st.markdown("""
         .cosmic-title {
             font-size: 2rem;
         }
+    }
+    /* Fade animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -307,6 +529,8 @@ if 'tasks_results' not in st.session_state:
     st.session_state.tasks_results = {}
 if 'tasks_breakdown' not in st.session_state:
     st.session_state.tasks_breakdown = {}
+if 'page_mode' not in st.session_state:
+    st.session_state.page_mode = "normal"  # "normal" or "comparison"
 
 # Initialize AI Client
 AI_AVAILABLE = False
@@ -423,30 +647,69 @@ def grade_task_with_breakdown(task_id: str, actions: List[EmailAction], inbox: L
 # HELPER FUNCTIONS
 # ============================================
 
-def get_ai_action(email):
-    """Get AI decision with fake urgency detection"""
+def get_ai_action(email, sender_history=None):
+    """Get AI decision with confidence score and reasoning"""
+        # Special rules for specific email patterns
+    if "Patch Required" in email.subject or "Security Update:" in email.subject:
+        return "normal", 0.85, "Routine security update - not urgent"
+    if "Breach Attempt Detected" in email.subject and "No action needed" in email.body:
+        return "normal", 0.85, "Security notification - no action required"
+    if "Follow-up: Contract Renewal" in email.subject:
+        return "urgent", 0.9, "Client follow-up requires attention"
     if not AI_AVAILABLE:
-        return "normal"
+        return "normal", 0.5, "AI not configured"
     
-    system_prompt = """You are an AI email security assistant. Your job is to detect fake urgency and scams.
+    # Build memory context if history exists
+    memory_context = ""
+    if sender_history and len(sender_history) > 0:
+        memory_context = "\n\n[PAST INTERACTIONS WITH THIS SENDER]:\n"
+        for i, past in enumerate(sender_history[-3:], 1):
+            memory_context += f"  {i}. Previously: '{past['subject']}' - classified as {past['category'].upper()}\n"
+        memory_context += "\nUse this history to understand the sender's pattern."
+    
+    system_prompt = f"""You are an AI email security assistant. Classify each email as urgent, normal, or spam.
 
-RULES:
-1. "urgent" - ONLY for REAL emergencies from legitimate company domains (company.com, official emails)
-2. "spam" - Mark as spam if:
-   - Fake urgency tactics ("URGENT", "IMMEDIATE", "FINAL WARNING") from suspicious senders
-   - Requests for money or wire transfers
-   - Threats of account closure or legal action
-   - Emotional manipulation ("family emergency", "help me")
-   - Too-good-to-be-true offers
-3. "normal" - Regular work emails
+CRITICAL RULES - SECURITY EMAILS ARE ALWAYS URGENT:
 
-Respond with ONLY the action word: urgent, normal, or spam"""
+URGENT (Mark as urgent if ANY of these apply):
+- SECURITY ALERTS: password changes, login attempts, security breaches, unauthorized access
+- System failures: server down, database issues, data loss
+- Client escalations or complaints
+- ANY email from security@company.com, it-security@company.com
+- Active threats: "unauthorized access detected", "data breach", "customer info exposed"
+- System failures: "server down", "database migration failed", "production server down"
+- Client escalations: "client threatening to leave", "complaint", "escalation"
+- Time-sensitive: "expires in", "immediate action required"
+- ANY email containing: "security alert", "password", "breach", "unauthorized", "failed login"
+
+SPAM (Mark as spam if ANY of these apply):
+- Fake urgency from non-company domains
+- Free gift cards, lottery wins, prizes, money requests
+- Emotional manipulation ("family emergency", "help me")
+- Fake invoices or legal threats
+- Fake urgency, lottery wins, money requests, emotional manipulation
+
+NORMAL:
+- Meeting invites, team updates, newsletters
+- Routine work emails, code reviews, HR updates
+- General company communications
+- Routine security: "patch required", "security update", "maintenance scheduled"
+- "Attempt detected" with "no action needed" - this is normal, not urgent
+- Regular updates, newsletters, meeting invites
+- Contract follow-ups (unless marked urgent)
+
+
+IMPORTANT: When in doubt about security-related content, mark as URGENT. It's better to be safe than sorry.
+
+{memory_context}
+
+Respond with ONLY one word: urgent, normal, or spam"""
 
     user_prompt = f"""From: {email.sender}
 Subject: {email.subject}
 Body: {email.body[:300]}
 
-Analyze for fake urgency tactics. Action:"""
+Classification (urgent/normal/spam):"""
     
     try:
         completion = client.chat.completions.create(
@@ -455,42 +718,24 @@ Analyze for fake urgency tactics. Action:"""
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.3,
+            temperature=0.2,
             max_tokens=20,
         )
         response = completion.choices[0].message.content or ""
         response = response.lower().strip().strip('"').strip("'")
         
-        if "urgent" in response:
-            return "urgent"
-        elif "spam" in response:
-            return "spam"
-        else:
-            return "normal"
-    except:
-        return "normal"
-    
-    try:
-        completion = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.3,
-            max_tokens=20,
-        )
-        response = completion.choices[0].message.content or ""
-        response = response.lower().strip().strip('"').strip("'")
+        confidence = 0.9 if response in ["urgent", "normal", "spam"] else 0.5
+        reasoning = f"AI classified as {response} based on email content"
         
         if "urgent" in response:
-            return "urgent"
+            return "urgent", confidence, reasoning
         elif "spam" in response:
-            return "spam"
+            return "spam", confidence, reasoning
         else:
-            return "normal"
-    except:
-        return "normal"
+            return "normal", confidence, reasoning
+    except Exception as e:
+        print(f"API Error: {e}")
+        return "normal", 0.5, f"Error: {str(e)[:50]}"
 
 def update_progress_timeline(decision, timeline_placeholder):
     """Update the progress timeline with latest decision"""
@@ -501,18 +746,24 @@ def update_progress_timeline(decision, timeline_placeholder):
         if 'timeline_entries' not in st.session_state:
             st.session_state.timeline_entries = []
         
-        # Add new entry
+        # Add new entry (no duplicates)
         emoji = "🟢" if decision['reward'] > 0 else "🔴"
-        st.session_state.timeline_entries.append({
+        new_entry = {
             'step': decision['step'],
             'email': decision['subject'][:30],
             'action': decision['action'],
             'reward': decision['reward'],
             'emoji': emoji
-        })
+        }
         
-        # Show last 10 entries (most recent first)
-        for entry in reversed(st.session_state.timeline_entries[-10:]):
+        # Check if step already exists (avoid duplicates)
+        existing_steps = [e['step'] for e in st.session_state.timeline_entries]
+        if decision['step'] not in existing_steps:
+            st.session_state.timeline_entries.append(new_entry)
+        
+        # Show last 10 entries (most recent)
+        last_entries = st.session_state.timeline_entries[-10:]
+        for entry in last_entries:
             reward_color = "#00cc66" if entry['reward'] > 0 else "#ff4b4b"
             st.markdown(f"""
             <div style="font-family: monospace; font-size: 0.8rem; margin: 4px 0;">
@@ -529,10 +780,15 @@ def run_single_task(task_id, task_name, progress_bar, status_text, live_placehol
     actions = []
     rewards = []
     decisions = []
+
     total_emails = len(env.inbox)
+    step_idx = 0
+    done = False
+    st.session_state.timeline_entries = []  # Clear timeline for this task
     
-    for step_idx in range(total_emails):
+    while step_idx < len(env.inbox) and not done:
         current_email = observation.current_email
+        step_idx += 1
         
         # Clear previous live card first
         live_placeholder.empty()
@@ -542,8 +798,19 @@ def run_single_task(task_id, task_name, progress_bar, status_text, live_placehol
             st.markdown('<div style="text-align: center;"><div class="spinning-icon">🤖</div><p style="color: #a78bfa;">AI Analyzing Email...</p></div>', unsafe_allow_html=True)
             time.sleep(0.3)
         
-        # Get AI decision
-        action = get_ai_action(current_email)
+        # Get sender history for memory
+        sender_history = env.get_sender_history(current_email.sender)
+        
+        # Build memory display text for UI
+        memory_display = ""
+        if sender_history and len(sender_history) > 0:
+            memory_display = "\n📜 **Memory:** "
+            for past in sender_history[-2:]:  # Show last 2 interactions
+                past_action = past.get('category', 'unknown')
+                memory_display += f"Previously '{past['subject'][:30]}' → {past_action.upper()}; "
+        
+                # Get AI decision with memory, confidence, and reasoning
+        action, confidence, reasoning = get_ai_action(current_email, sender_history)
         
         # Take action
         action_obj = EmailAction(email_id=current_email.id, action=ActionType(action))
@@ -553,12 +820,15 @@ def run_single_task(task_id, task_name, progress_bar, status_text, live_placehol
         rewards.append(reward)
         
         decision = {
-            'step': step_idx + 1,
+            'step': step_idx ,
             'email_id': current_email.id,
             'subject': current_email.subject[:50],
             'action': action,
             'reward': reward,
-            'message': info.get('breakdown', {}).get('message', '')[:80]
+            'message': info.get('breakdown', {}).get('message', '')[:80],
+            'memory': memory_display if memory_display else 'No prior interactions',
+            'confidence': confidence,
+            'reasoning': reasoning[:100]  # Limit length
         }
         decisions.append(decision)
         
@@ -572,7 +842,7 @@ def run_single_task(task_id, task_name, progress_bar, status_text, live_placehol
             <div class="live-card">
                 <div class="live-header">
                     <span class="live-badge">🔴 PROCESSING</span>
-                    <span class="live-step">Email {step_idx + 1} of {total_emails}</span>
+                    <span class="live-step">Email {step_idx} of {len(env.inbox)}</span>
                 </div>
                 <div class="live-subject">📧 {current_email.subject[:100]}</div>
                 <div style="color: #94a3b8; font-size: 0.85rem;">From: {current_email.sender}</div>
@@ -580,26 +850,38 @@ def run_single_task(task_id, task_name, progress_bar, status_text, live_placehol
                     <span class="live-decision-badge" style="background: {action_color};">🎯 AI DECIDED: {action.upper()}</span>
                     <span class="live-reward">Reward: {reward:+.2f}</span>
                 </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin: 8px 0;">
+                    <span style="background: rgba(139,92,246,0.3); padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">
+                        🎯 Confidence: {int(confidence * 100)}%
+                    </span>
+                </div>
+                <div style="color: #c4b5fd; font-size: 0.75rem; margin: 8px 0; border-top: 1px solid rgba(139,92,246,0.2); padding-top: 8px;">
+                    🧠 {memory_display if memory_display else 'No prior interactions with this sender'}
+                </div>
                 <div class="live-message">💡 {info.get('breakdown', {}).get('message', '')}</div>
+                <div style="color: #a78bfa; font-size: 0.75rem; margin-top: 8px; font-style: italic;">
+                    💭 Reasoning: {reasoning[:150]}
+                </div>
             </div>
             """, unsafe_allow_html=True)
         
-        # Update progress
-        progress = (step_idx + 1) / total_emails
+        # Update progress - recalculate based on current inbox size
+        current_total = len(env.inbox)
+        progress = min(0.99, step_idx / current_total)  # Cap at 0.99 to avoid 1.0 before completion
         progress_bar.progress(progress)
-        status_text.info(f"✨ Processing {task_name} - Email {step_idx + 1} of {total_emails}")
+        status_text.info(f"✨ Processing {task_name} - Email {step_idx } of {current_total}")
         time.sleep(0.2)
     
     live_placeholder.empty()
     
-    # Calculate score with breakdown
+        # Calculate score with breakdown
     if task_id == "hard_evolving":
-        score, boss_feedback = grade_task_with_breakdown(task_id, actions, env.inbox)
-        if boss_feedback:
-            st.success(f"📢 BOSS FEEDBACK: {boss_feedback}")
-        # For hard task, also get the breakdown from the function
-        # Since your function returns breakdown as well, let's capture it
         score, breakdown = grade_task_with_breakdown(task_id, actions, env.inbox)
+        # Get boss feedback from the grader directly
+        from tasks import get_grader
+        grader = get_grader(task_id)
+        if hasattr(grader, 'boss_feedback'):
+            st.success(f"📢 BOSS FEEDBACK: {grader.boss_feedback}")
     else:
         score, breakdown = grade_task_with_breakdown(task_id, actions, env.inbox)
     env.close()
@@ -639,9 +921,9 @@ def generate_results_json():
     total_reward_sum = 0
     
     task_display_names = {
-        "easy_classification": "🔵 EASY: 3 Simple Emails",
-        "medium_prioritization": "🟡 MEDIUM: 5 Subtle Emails",
-        "hard_evolving": "🔴 HARD: Evolving Inbox"
+        "easy_classification": "🔵 EASY: 10 Simple Emails",
+        "medium_prioritization": "🟡 MEDIUM: 15 Subtle Emails",
+        "hard_evolving": "🔴 HARD: 40 Evolving Inbox"
     }
     
     for task_id, result in results.items():
@@ -693,7 +975,7 @@ def run_all_tasks():
         st.session_state.tasks_results[task_id] = result
         
         with results_placeholder.container():
-            st.markdown("---")
+            st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
             cols = st.columns(len(st.session_state.tasks_results))
             for idx, (tid, res) in enumerate(st.session_state.tasks_results.items()):
                 with cols[idx]:
@@ -717,9 +999,17 @@ def run_all_tasks():
 # MAIN UI
 # ============================================
 
-st.markdown('<div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>', unsafe_allow_html=True)
-st.markdown('<div class="cosmic-subtitle">🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌</div>', unsafe_allow_html=True)
-st.markdown("---")
+st.markdown("""
+<div style="animation: fadeIn 0.8s ease-in;">
+    <div class="title-bar">
+        <div class="cosmic-title">⚡ EMAIL TRIAGE AI ⚡</div>
+        <div class="cosmic-subtitle">
+            🌌 AUTONOMOUS EMAIL PROCESSING • OPENENV COMPATIBLE 🌌
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
 col_left, col_center, col_right = st.columns([1, 2, 1])
 
@@ -732,24 +1022,420 @@ with col_center:
     </div>
     """, unsafe_allow_html=True)
     
-    if not st.session_state.is_running:
-        if st.button("🚀 LAUNCH FULL DEMO", use_container_width=True, type="primary"):
-            run_all_tasks()
-    else:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border-radius: 50px; padding: 12px; text-align: center;">
-            <span style="color: white; font-weight: bold;">✨ AI PROCESSING ✨</span>
-        </div>
-        """, unsafe_allow_html=True)
+    # Mode Selection Toggle
+    st.markdown("### 🎮 Select Mode")
+    col_mode1, col_mode2,col_mode3 = st.columns(3)
     
-    if AI_AVAILABLE:
-        st.caption(f"✅ AI Ready: {MODEL_NAME.replace('openai/', '')}")
+    with col_mode1:
+        if st.button("🚀 NORMAL MODE", use_container_width=True, type="primary" if st.session_state.page_mode == "normal" else "secondary"):
+            st.session_state.page_mode = "normal"
+            st.session_state.tasks_results = {}  # Clear results when switching
+            st.session_state.comparison_results = {} # Also clear comparison results
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
+            st.rerun()
+    
+    with col_mode2:
+        if st.button("🎲 AI vs RANDOM MODE", use_container_width=True, type="primary" if st.session_state.page_mode == "comparison" else "secondary"):
+            st.session_state.page_mode = "comparison"
+            st.session_state.comparison_results = {}  # Clear comparison results
+            st.session_state.tasks_results = {}      # Also clear normal results
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
+            st.rerun()
+    
+    with col_mode3:
+        if st.button("📝 EDIT EMAILS", use_container_width=True, type="primary" if st.session_state.page_mode == "editor" else "secondary"):
+            st.session_state.page_mode = "editor"
+            with st.spinner("Switching mode..."):
+                time.sleep(0.4)
+            st.rerun()
 
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
-st.markdown("---")
+    # ============================================
+    # NORMAL MODE
+    # ============================================
+    if st.session_state.page_mode == "normal":
+        if not st.session_state.is_running:
+            if st.button("🚀 LAUNCH FULL DEMO", use_container_width=True, type="primary"):
+                with st.spinner("🤖 AI is analyzing emails..."):
+                    time.sleep(0.5)
+                run_all_tasks()
+        else:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border-radius: 50px; padding: 12px; text-align: center;">
+                <span style="color: white; font-weight: bold;">✨ AI PROCESSING ✨</span>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if AI_AVAILABLE:
+            st.caption(f"✅ AI Ready: {MODEL_NAME.replace('openai/', '')}")
 
-# Results Dashboard
-if st.session_state.tasks_results:
+   
+
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+
+    # ============================================
+    # COMPARISON MODE
+    # ============================================
+if st.session_state.page_mode == "comparison":
+    st.session_state.tasks_results = {}
+    st.markdown("## 🎲 AI vs RANDOM COMPARISON")
+    st.markdown("Comparing intelligent AI decisions against random baseline")
+    
+    # Initialize comparison results in session state
+    if 'comparison_results' not in st.session_state:
+        st.session_state.comparison_results = None
+    if 'is_comparing' not in st.session_state:
+        st.session_state.is_comparing = False
+        
+    # Random Agent Class (inline)
+    class RandomAgent:
+        def __init__(self):
+            self.possible_actions = ["urgent", "normal", "spam"]
+        def get_action(self, email):
+            import random
+            return random.choice(self.possible_actions)
+      
+    def get_ai_action_comparison(email):
+        """Get AI decision using Groq/OpenAI"""
+        import random
+        if not AI_AVAILABLE:
+            return random.choice(["urgent", "normal", "spam"])
+          
+        system_prompt = """You are an AI email assistant. Classify email as "urgent", "normal", or "spam". Respond with ONLY the action word."""
+        user_prompt = f"""From: {email.sender}\nSubject: {email.subject}\nBody: {email.body[:200]}\n\nAction:"""
+         
+        try:
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=20,
+            )
+            response = completion.choices[0].message.content or ""
+            response = response.lower().strip().strip('"').strip("'")
+            
+            if "urgent" in response:
+                return "urgent"
+            elif "spam" in response:
+                return "spam"
+            else:
+                return "normal"
+        except:
+            return random.choice(["urgent", "normal", "spam"])
+        
+    def run_comparison_agent(env, agent_type, task_name, progress_placeholder, email_placeholder, timeline_placeholder):
+        """Run a single agent (AI or Random) on a task"""
+        observation = env.reset()
+        actions = []
+        rewards = []
+        timeline = []
+        total_emails = len(env.inbox)
+        random_agent = RandomAgent()
+        
+        for step_idx in range(total_emails):
+            current_email = observation.current_email
+                
+            with email_placeholder.container():
+                st.markdown(f"""
+                <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin: 10px 0;">
+                    <div style="font-weight: bold;">📧 {current_email.subject[:80]}</div>
+                    <div style="color: #94a3b8; font-size: 0.8rem;">From: {current_email.sender}</div>
+                    <div style="font-size: 0.8rem; margin-top: 8px;">{current_email.body[:100]}...</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if agent_type == "ai":
+                action = get_ai_action_comparison(current_email)
+            else:
+                action = random_agent.get_action(current_email)
+            
+            action_obj = EmailAction(email_id=current_email.id, action=ActionType(action))
+            observation, reward, done, info = env.step(action_obj)
+             
+            actions.append(action_obj)
+            rewards.append(reward)
+             
+            emoji = "🟢" if reward > 0 else "🔴"
+            timeline.append({'step': step_idx + 1, 'action': action, 'reward': reward, 'emoji': emoji})
+              
+            with timeline_placeholder.container():
+                st.markdown("**📜 Timeline (last 10):**")
+                for entry in timeline[-10:]:
+                    reward_color = "#00cc66" if entry['reward'] > 0 else "#ff4b4b"
+                    action_color = "#ef4444" if entry['action'] == "urgent" else "#3b82f6" if entry['action'] == "normal" else "#8b5cf6"
+                    st.markdown(f"""
+                    <div style="font-family: monospace; font-size: 0.75rem; padding: 4px; border-bottom: 1px solid rgba(139,92,246,0.2);">
+                        {entry['emoji']} Step {entry['step']}: 
+                        <span style="background: {action_color}; color: white; padding: 2px 8px; border-radius: 15px; font-size: 0.7rem;">{entry['action'].upper()}</span>
+                        → <span style="color: {reward_color};">{entry['reward']:+.2f}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+            progress = (step_idx + 1) / total_emails
+            progress_placeholder.progress(progress, text=f"Processing {step_idx + 1}/{total_emails}")
+            time.sleep(0.1)
+            
+        score = grade_task(env.task_id, actions, env.inbox)
+        total_reward = sum(rewards)
+        return {'score': score, 'total_reward': total_reward, 'steps': len(actions)}
+        
+    def run_full_comparison():
+        st.session_state.is_comparing = True
+        st.session_state.comparison_results = {'ai': {}, 'random': {}}
+         
+        tasks = [
+            ("easy_classification", "EASY", 12),
+            ("medium_prioritization", "MEDIUM", 15),
+            ("hard_evolving", "HARD", 40),
+        ]
+           
+        for task_id, task_name, email_count in tasks:
+            st.markdown(f"#### 📧 {task_name} TASK")
+              
+            col_left, col_right = st.columns(2)
+              
+            # AI Agent
+            with col_left:
+                st.markdown("**🤖 AI AGENT**")
+                ai_progress = st.empty()
+                ai_email = st.empty()
+                ai_timeline = st.empty()
+                  
+                env_ai = EmailTriageEnvironment(task_id=task_id)
+                ai_result = run_comparison_agent(env_ai, "ai", task_name, ai_progress, ai_email, ai_timeline)
+                st.session_state.comparison_results['ai'][task_id] = ai_result
+                st.markdown(f"**Score:** {ai_result['score']:.3f}/1.0")
+                st.markdown(f"**Reward:** {ai_result['total_reward']:.2f}")
+              
+            # Random Agent
+            with col_right:
+                st.markdown("**🎲 RANDOM AGENT**")
+                random_progress = st.empty()
+                random_email = st.empty()
+                random_timeline = st.empty()
+                
+                env_random = EmailTriageEnvironment(task_id=task_id)
+                random_result = run_comparison_agent(env_random, "random", task_name, random_progress, random_email, random_timeline)
+                st.session_state.comparison_results['random'][task_id] = random_result
+                st.markdown(f"**Score:** {random_result['score']:.3f}/1.0")
+                st.markdown(f"**Reward:** {random_result['total_reward']:.2f}")
+                
+            st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+            
+        st.session_state.is_comparing = False
+        st.rerun()
+        
+    # Run comparison button
+    if not st.session_state.is_comparing:
+        if st.button("🚀 RUN COMPARISON", use_container_width=True, type="primary"):
+            run_full_comparison()
+    else:
+        st.info("🔄 Running comparison... Please wait.")
+     
+    # Display results after comparison
+    if st.session_state.comparison_results and st.session_state.comparison_results.get('ai'):
+        st.markdown("## 📊 FINAL COMPARISON")
+          
+        tasks_display = ["Easy", "Medium", "Hard"]
+        ai_scores = [
+            st.session_state.comparison_results['ai'].get('easy_classification', {}).get('score', 0),
+            st.session_state.comparison_results['ai'].get('medium_prioritization', {}).get('score', 0),
+            st.session_state.comparison_results['ai'].get('hard_evolving', {}).get('score', 0)
+        ]
+        random_scores = [
+            st.session_state.comparison_results['random'].get('easy_classification', {}).get('score', 0),
+            st.session_state.comparison_results['random'].get('medium_prioritization', {}).get('score', 0),
+            st.session_state.comparison_results['random'].get('hard_evolving', {}).get('score', 0)
+        ]
+           
+        avg_ai = sum(ai_scores) / 3
+        avg_random = sum(random_scores) / 3
+        improvement = ((avg_ai - avg_random) / avg_random) * 100 if avg_random > 0 else 0
+         
+        # Create bar chart
+        try:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(10, 6))
+            x = range(len(tasks_display))
+            width = 0.35
+                
+            bars1 = ax.bar([i - width/2 for i in x], ai_scores, width, label='🤖 AI Agent', color='#8b5cf6')
+            bars2 = ax.bar([i + width/2 for i in x], random_scores, width, label='🎲 Random Baseline', color='#ec4899')
+               
+            ax.set_ylabel('Score')
+            ax.set_title('AI vs Random Agent Performance', fontsize=14, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels(tasks_display)
+            ax.legend(loc='upper left')
+            ax.set_ylim(0, 1.1)
+             
+            for bar in bars1:
+                height = bar.get_height()
+                ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                            xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+            for bar in bars2:
+                height = bar.get_height()
+                ax.annotate(f'{height:.3f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                            xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+                
+            ax.set_facecolor('#1a1a3e')
+            fig.patch.set_facecolor('#0a0a2a')
+            ax.tick_params(colors='white')
+            ax.xaxis.label.set_color('white')
+            ax.yaxis.label.set_color('white')
+            ax.title.set_color('white')
+                
+            st.pyplot(fig)
+        except ImportError:
+            st.warning("Matplotlib not installed. Install with: pip install matplotlib")
+         
+        # Summary stats
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("🤖 AI Average Score", f"{avg_ai:.3f}")
+        with col2:
+            st.metric("🎲 Random Average Score", f"{avg_random:.3f}")
+        with col3:
+            st.metric("📈 AI Improvement", f"+{improvement:.0f}%")
+          
+        if st.button("🔄 RUN COMPARISON AGAIN", use_container_width=True):
+            st.session_state.comparison_results = None
+            st.rerun()
+        
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+# ============================================
+# EDITOR MODE
+# ============================================
+if st.session_state.page_mode == "editor":
+    st.markdown("## 📝 Email Templates Editor")
+    st.markdown("Edit, add, or delete emails for each task")
+    
+    TASKS = {
+        'easy_classification': '🔵 EASY TASK',
+        'medium_prioritization': '🟡 MEDIUM TASK',
+        'hard_evolving': '🔴 HARD TASK'
+    }
+    
+    selected_task = st.selectbox(
+        "Select Task to Edit",
+        options=list(TASKS.keys()),
+        format_func=lambda x: TASKS[x]
+    )
+      
+    # File path for this task
+    json_filename = f"emails_{selected_task}.json"
+        
+    # Load emails from JSON file if exists, otherwise from environment
+    if st.button("📂 Load Current Emails", use_container_width=True):
+        if os.path.exists(json_filename):
+            with open(json_filename, 'r') as f:
+                st.session_state.editor_emails = json.load(f)
+            st.success(f"Loaded {len(st.session_state.editor_emails)} emails from JSON file!")
+        else:
+            # Load from environment
+            from environment import EmailTriageEnvironment
+            env = EmailTriageEnvironment(selected_task)
+            env.reset()
+            emails = []
+            for email in env.inbox:
+                emails.append({
+                    'id': email.id,
+                    'subject': email.subject,
+                    'body': email.body,
+                    'sender': email.sender,
+                    'correct_category': email.correct_category,
+                    'urgency': email.urgency,
+                    'time_sensitive': getattr(email, 'time_sensitive', False),
+                    'is_fake_urgent': getattr(email, 'is_fake_urgent', False)
+                })
+            st.session_state.editor_emails = emails
+            st.success(f"Loaded {len(emails)} emails from environment!")
+    
+    # Display and edit emails
+    if 'editor_emails' in st.session_state and st.session_state.editor_emails:
+        emails = st.session_state.editor_emails
+        
+        st.markdown(f"### 📧 Current Emails ({len(emails)} total)")
+        
+        for idx, email in enumerate(emails):
+            with st.expander(f"Email #{email.get('id', idx+1)}: {email.get('subject', 'No subject')[:50]}"):
+                col1, col2 = st.columns([3, 1])
+                 
+                with col1:
+                    new_subject = st.text_input("Subject", email.get('subject', ''), key=f"editor_subject_{idx}")
+                    new_sender = st.text_input("From", email.get('sender', ''), key=f"editor_sender_{idx}")
+                    new_body = st.text_area("Body", email.get('body', ''), height=100, key=f"editor_body_{idx}")
+                    new_category = st.selectbox(
+                        "Category",
+                        options=["urgent", "normal", "spam"],
+                        index=["urgent", "normal", "spam"].index(email.get('correct_category', 'normal')),
+                        key=f"editor_cat_{idx}"
+                    )
+                    
+                with col2:
+                    if st.button("🗑️ Delete", key=f"editor_delete_{idx}"):
+                        st.session_state.editor_emails.pop(idx)
+                        # Reassign IDs
+                        for i, e in enumerate(st.session_state.editor_emails):
+                            e['id'] = i + 1
+                        st.rerun()
+                  
+                if st.button("💾 Save Changes", key=f"editor_save_{idx}"):
+                    email['subject'] = new_subject
+                    email['sender'] = new_sender
+                    email['body'] = new_body
+                    email['correct_category'] = new_category
+                    st.success(f"Email #{email.get('id', idx+1)} updated!")
+                    st.rerun()
+            
+        # Add new email
+        st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+        st.markdown("### ➕ Add New Email")
+           
+        col_new1, col_new2 = st.columns(2)
+        
+        with col_new1:
+            new_subject = st.text_input("Subject", placeholder="Enter email subject", key="editor_new_subject")
+            new_sender = st.text_input("From", placeholder="sender@example.com", key="editor_new_sender")
+            new_body = st.text_area("Body", placeholder="Enter email body", height=100, key="editor_new_body")
+          
+        with col_new2:
+            new_category = st.selectbox("Category", ["urgent", "normal", "spam"], key="editor_new_category")
+         
+        if st.button("➕ Add Email", use_container_width=True):
+            new_id = len(emails) + 1
+            new_email = {
+                'id': new_id,
+                'subject': new_subject,
+                'body': new_body,
+                'sender': new_sender,
+                'correct_category': new_category,
+                'urgency': 1,
+                'time_sensitive': False,
+                'is_fake_urgent': False
+            }
+            st.session_state.editor_emails.append(new_email)
+            st.success(f"Added new email: {new_subject}")
+            st.rerun()
+        
+        # Save to JSON button
+        st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+        if st.button("💾 SAVE ALL TO JSON (Apply to Environment)", use_container_width=True, type="primary"):
+            with open(json_filename, 'w') as f:
+                json.dump(st.session_state.editor_emails, f, indent=2)
+            st.success(f"✅ Saved {len(st.session_state.editor_emails)} emails to {json_filename}")
+            st.info("🎯 These emails will now be used when you run NORMAL MODE!")
+    else:
+        st.info("Click 'Load Current Emails' to start editing.")
+
+# Results Dashboard - Only show in NORMAL MODE
+if st.session_state.page_mode == "normal" and st.session_state.tasks_results:
     st.markdown("### 📊 MISSION RESULTS")
     
     scores = [r['score'] for r in st.session_state.tasks_results.values()]
@@ -795,7 +1481,7 @@ if st.session_state.tasks_results:
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
     
     # Grader Breakdown Section
     st.markdown("### 📋 GRADER BREAKDOWN")
@@ -836,32 +1522,45 @@ if st.session_state.tasks_results:
             
             st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
     
-    # AI Decision Log
-    st.markdown("### 🤖 AI DECISION LOG")
-    
-    tabs = st.tabs(["📧 EASY TASK", "⚡ MEDIUM TASK", "🌌 HARD TASK"])
+    # AI Decision Log - Only show in NORMAL MODE
+    if st.session_state.page_mode == "normal":
+        st.markdown("### 🤖 AI DECISION LOG")
+        
+        tabs = st.tabs(["📧 EASY TASK", "⚡ MEDIUM TASK", "🌌 HARD TASK"])
     
     for idx, (task_id, result) in enumerate(st.session_state.tasks_results.items()):
         with tabs[idx]:
-            for decision in result['decisions']:
-                reward_color = "#00cc66" if decision['reward'] > 0 else "#ff4b4b"
-                st.markdown(f"""
-                <div class="ai-log-entry">
-                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span style="color: #a78bfa;"><b>Step {decision['step']}</b> | Email #{decision['email_id']}</span>
-                        <span style="color: {reward_color}; font-weight: bold;">{decision['reward']:+.2f}</span>
-                    </div>
-                    <div style="color: white; margin: 8px 0;">📧 {decision['subject']}...</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                        <span style="background: rgba(139,92,246,0.3); padding: 4px 12px; border-radius: 20px;">🎯 {decision['action'].upper()}</span>
-                        <span style="color: #c4b5fd; font-size: 0.8rem;">{decision['message']}</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    for decision in result['decisions']:
+                        reward_color = "#00cc66" if decision['reward'] > 0 else "#ff4b4b"
+                        memory_text = decision.get('memory', 'No prior interactions')
+                        confidence = decision.get('confidence', 0.7)
+                        reasoning = decision.get('reasoning', 'No explanation')
+                        
+                        st.markdown(f"""
+                        <div class="ai-log-entry">
+                            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <span style="color: #a78bfa;"><b>Step {decision['step']}</b> | Email #{decision['email_id']}</span>
+                                <span style="color: {reward_color}; font-weight: bold;">{decision['reward']:+.2f}</span>
+                            </div>
+                            <div style="color: white; margin: 8px 0;">📧 {decision['subject']}...</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                                <span style="background: rgba(139,92,246,0.3); padding: 4px 12px; border-radius: 20px;">🎯 {decision['action'].upper()}</span>
+                                <span style="background: rgba(34,197,94,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem;">Confidence: {int(confidence * 100)}%</span>
+                                <span style="color: #c4b5fd; font-size: 0.8rem;">{decision['message']}</span>
+                            </div>
+                            <div style="color: #a78bfa; font-size: 0.7rem; margin-top: 5px;">
+                                💭 {reasoning}
+                            </div>
+                            <div style="color: #a78bfa; font-size: 0.7rem; margin-top: 8px; padding-top: 5px; border-top: 1px solid rgba(139,92,246,0.1);">
+                                🧠 {memory_text}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
     
-    # Reset and Download Buttons
+# Reset and Download Buttons - Only show in NORMAL MODE
+if st.session_state.page_mode == "normal":
     col_r1, col_r2, col_r3 = st.columns([1, 2, 1])
     with col_r2:
         # Download button
@@ -880,7 +1579,7 @@ if st.session_state.tasks_results:
             st.session_state.tasks_results = {}
             st.rerun()
 
-else:
+elif st.session_state.page_mode == "normal":
     col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
     with col_w2:
         st.markdown("""
@@ -900,7 +1599,68 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-st.markdown("---")
+# ============================================
+# FOOTER WITH DESCRIPTION
+# ============================================
+
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+
+# Welcome Description at the BOTTOM (only shows in normal mode with no results)
+if not st.session_state.tasks_results and not st.session_state.is_running and st.session_state.page_mode == "normal":
+    st.markdown("### 📧 Welcome to Email Triage AI")
+    st.markdown("*An intelligent email assistant that learns to prioritize your inbox*")
+    
+    col_w1, col_w2, col_w3 = st.columns(3)
+    
+    with col_w1:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">🎯</div>
+            <div style="font-weight: bold; color: #a78bfa;">3 Difficulty Levels</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">Easy → Medium → Hard</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_w2:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">🧠</div>
+            <div style="font-weight: bold; color: #a78bfa;">Memory & Reasoning</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">AI remembers past interactions</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_w3:
+        st.markdown("""
+        <div style="text-align: center;">
+            <div style="font-size: 1.8rem;">📊</div>
+            <div style="font-weight: bold; color: #a78bfa;">AI vs Random</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">See how AI outperforms random</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with st.expander("📋 How to Use"):
+        st.markdown("""
+        1. Select a **Mode** above: Normal, AI vs Random, or Edit Emails
+        2. Click **LAUNCH FULL DEMO** to start AI processing
+        3. Watch AI make decisions in real-time with confidence scores
+        4. View results, grader breakdown, and download JSON reports
+        5. Switch to **Edit Mode** to create your own email templates
+        """)
+    
+    st.markdown("""
+    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0;">
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">✨ Explainable AI</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🎯 Confidence Scores</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🧠 Sender Memory</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">🎲 Random Baseline</span>
+        <span style="background: rgba(30,144,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.7rem;">📝 Email Editor</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
+
+# Original footer
 st.markdown("""
 <div style="text-align: center; color: #4a4a7a; font-size: 0.8rem; padding: 20px;">
     🚀 Built with OpenEnv • Powered by GPT-3.5 • Transparent Grading

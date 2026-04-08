@@ -11,7 +11,15 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Literal
 from enum import Enum
 
-
+# Sender Profile for Multi-User Simulation
+class SenderProfile(BaseModel):
+    """Profile for each email sender with personality and history"""
+    name: str = Field(description="Sender's name")
+    email: str = Field(description="Sender's email address")
+    personality: str = Field(description="Personality type: urgent-prone, casual, formal, spammy, crisis-mode")
+    trust_level: int = Field(default=5, ge=1, le=10, description="Trust level 1-10")
+    previous_topics: List[str] = Field(default_factory=list, description="Topics from past emails")
+    previous_urgency: List[int] = Field(default_factory=list, description="Urgency levels from past emails")
 # === 1. Define what an EMAIL looks like (FULL version with hidden fields) ===
 
 class Email(BaseModel):
