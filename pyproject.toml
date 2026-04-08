@@ -22,3 +22,6 @@ build-backend = "setuptools.build_meta"
 [tool.openenv]
 name = "email-triage-env"
 version = "1.0.0"
+
+[project.scripts]
+openenv-server = "server.app:main"
