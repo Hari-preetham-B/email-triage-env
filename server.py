@@ -26,7 +26,7 @@ except ImportError:
             app = FastAPI()
             env = None
             
-            @app.post("/reset")
+            @app.get("/reset")
             async def reset():
                 global env
                 env = EmailTriageEnvironment()
