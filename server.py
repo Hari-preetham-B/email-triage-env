@@ -33,7 +33,11 @@ except ImportError:
                 env = EmailTriageEnvironment()
                 obs = env.reset()
                 return {"status": "ok", "observation": obs.dict()}
-            
+            @app.get("/")
+            async def root():
+                return {"message": "Email Triage Environment is running!", "endpoints": ["/reset", "/step"]}
+
+            @app.get("/reset")
             @app.post("/step")
             async def step(action: dict):
                 global env
