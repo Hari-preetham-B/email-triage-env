@@ -22,7 +22,7 @@ load_dotenv()
 # ============================================
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
-API_KEY = os.getenv("OPENAI_API_KEY")
+API_KEY = os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME", "meta-llama/llama-3-8b-instruct:free")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.3"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "150"))
@@ -30,8 +30,7 @@ MAX_STEPS = 50
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 if not API_KEY:
-    print("❌ ERROR: OPENAI_API_KEY not found in .env file!")
-    print("Get your key from: https://openrouter.ai/keys")
+    print("ERROR: No API key found. Set HF_TOKEN or OPENAI_API_KEY", flush=True)
     sys.exit(1)
 
 # Initialize OpenAI client
@@ -150,8 +149,8 @@ Choose action:"""
         actions_taken.append(action)
         
         # Emit structured STEP log
-        error = info.get('breakdown', {}).get('message', None)
-        log_step(step=step, action=action.action.value, reward=reward, done=done, error=error)
+        breakdown_msg = info.get('breakdown', {}).get('message', '')
+        error = None if not breakdown_msg or '✓' in breakdown_msg else breakdown_msg
     
     final_score = grade_task(task_id, actions_taken, env.inbox)
     env.close()
