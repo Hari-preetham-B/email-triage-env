@@ -1579,7 +1579,7 @@ if st.session_state.page_mode == "normal":
             st.session_state.tasks_results = {}
             st.rerun()
 
-elif st.session_state.page_mode == "normal":
+else:
     col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
     with col_w2:
         st.markdown("""

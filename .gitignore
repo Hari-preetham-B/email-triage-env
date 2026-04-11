@@ -7,8 +7,9 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+env/
 
-# Environment variables
+# Environment variables - NEVER push these
 .env
 *.env
 
@@ -30,4 +31,16 @@ Thumbs.db
 # Build files
 build/
 dist/
-*.egg-info/.env 
+*.egg-info/
+
+# uv
+uv.lock
+
+# Validation artifacts
+validation_result.json
+
+# Test cache
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/

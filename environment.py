@@ -591,7 +591,7 @@ class EmailTriageEnvironment:
             self._setup_medium_task()
         elif self.task_id == "hard_evolving":
             self._setup_hard_task()
-        self._setup_task()
+        
         # Return the first email observation
         return self._get_current_observation()
     
@@ -685,7 +685,8 @@ class EmailTriageEnvironment:
                 if "security" in email.sender.lower() or any(kw in email.subject.lower() for kw in ["security", "alert", "breach", "password"]):
                     reward += 0.2
                     breakdown["message"] = f"✓ Correctly marked urgent! (+0.5) + Security bonus (+0.2)"
-                breakdown["message"] = f"✓ Correctly marked urgent! (+0.5)"
+                else:
+                    breakdown["message"] = f"✓ Correctly marked urgent! (+0.5)"
             elif correct == "normal":
                 reward = 0.3
                 breakdown["message"] = f"✓ Correctly marked normal (+0.3)"
