@@ -33,9 +33,6 @@ build/
 dist/
 *.egg-info/
 
-# uv
-uv.lock
-
 # Validation artifacts
 validation_result.json
 
