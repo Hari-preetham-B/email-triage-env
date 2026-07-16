@@ -131,7 +131,7 @@ Using GPT-3.5 / Groq (with proper API keys):
 
 ```bash
 # Clone the repository
-git clone https://huggingface.co/spaces/Haripreetham/email-triage-env
+git clone https://github.com/Hari-preetham-B/email-triage-env.git
 cd email-triage-env
 
 # Install dependencies
