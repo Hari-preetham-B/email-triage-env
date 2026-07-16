@@ -1,1 +1,0 @@
-{"status":"ok","observation":{"current_email":{"id":1,"subject":"URGENT: Production Server Down","body":"The main server is not responding. Customer facing issues!","sender":"alert@company.com"},"remaining_count":12,"inbox_summary":null,"step_number":0,"last_action_result":null}}
